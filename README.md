@@ -1,5 +1,9 @@
 # ATLAS Intelligence Engine
 
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Vite + React](https://img.shields.io/badge/Vite%20%2B%20React-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+
 This repository contains the ATLAS intelligence engine and the PROMETHEUS reconciliation system.
 
 ## Where the FastAPI app lives
