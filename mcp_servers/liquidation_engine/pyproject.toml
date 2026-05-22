@@ -1,0 +1,20 @@
+[project]
+name = "liquidation-engine"
+version = "0.1.0"
+description = "DeFi Credit & On-Chain Liquidation MCP (Aave / Kamino)"
+authors = [{ name = "ATLAS-CORE", email = "research@atlas.dev" }]
+dependencies = [
+    "mcp[cli]>=1.0.0",
+    "web3[async]>=6.0.0",
+    "solders>=0.18.0",
+    "solana>=0.30.0",
+    "pydantic>=2.0.0",
+    "httpx>=0.24.0",
+    "msgspec>=0.18.0",
+    "python-dotenv>=1.0.0",
+]
+requires-python = ">=3.11"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

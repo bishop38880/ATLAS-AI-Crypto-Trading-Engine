@@ -1,0 +1,1 @@
+"""Sentiment Synthesis MCP package."""

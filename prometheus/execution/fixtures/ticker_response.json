@@ -1,0 +1,17 @@
+{
+  "code": "00000",
+  "msg": "success",
+  "requestTime": 1700000000000,
+  "data": [
+    {
+      "symbol": "BTCUSDT",
+      "lastPr": "70000.5",
+      "bidPr": "70000.0",
+      "askPr": "70001.0",
+      "high24h": "71500.0",
+      "low24h": "69500.0",
+      "baseVolume": "1234.56",
+      "ts": "1700000000000"
+    }
+  ]
+}

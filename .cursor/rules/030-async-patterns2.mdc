@@ -1,0 +1,141 @@
+---
+description: Async Python patterns and anti-patterns for ATLAS I/O operations
+globs: ["**/*.py"]
+alwaysApply: true
+---
+
+# Async Patterns — ATLAS
+
+## Core Rule
+
+All I/O operations are async. No blocking calls anywhere in the codebase.
+
+## Required Libraries
+
+- HTTP: `httpx.AsyncClient` with HTTP/2 — NEVER `requests`, NEVER `urllib`.
+- Database: `asyncpg` — NEVER `psycopg2`, NEVER `SQLAlchemy`.
+- Redis: `redis.asyncio` — NEVER `aioredis` (abandoned upstream,
+  explicitly banned), NEVER synchronous `redis`.
+- Vector store: `qdrant-client` (async methods) primary, `lancedb`
+  (async via `asyncio.to_thread`) hot-standby.
+- Serialisation: `msgspec` for ALL JSON encode/decode — NEVER
+  `json.loads/dumps`, NEVER `orjson`, NEVER `pickle`, NEVER `joblib`.
+  Model weights serialise as msgspec-encoded JSON (floats in arrays).
+
+<ABSOLUTE_BAN>
+The following library references are CORRECTIONS that Antigravity
+repeatedly tries to introduce. Reject them every time:
+
+- `aioredis` → `redis.asyncio`
+- `mypy` → `pyright`
+- `orjson` → `msgspec`
+- `json` (stdlib) → `msgspec.json.encode/decode`
+- `pickle` / `joblib` → `msgspec.json` over model weight arrays
+- `sentence-transformers` → `MistralEmbeddingClient` (interim)
+- `FAISS` / `BM25` / `RRF` / `pgvector` / `LlamaIndex` → Qdrant primary,
+  LanceDB hot-standby
+- `requests` / `urllib` → `httpx.AsyncClient`
+- `pandas` → Polars
+- `psycopg2` → `asyncpg`
+- `SQLAlchemy` → `asyncpg` (raw SQL with typed Pydantic return models)
+- `ThreadPoolExecutor` for I/O → `asyncio.gather` / `TaskGroup`
+</ABSOLUTE_BAN>
+
+## Connection Pooling
+
+Create ONE `httpx.AsyncClient` per provider at application startup.
+Share it via dependency injection. Never create a client per request.
+
+```python
+# CORRECT — singleton client at startup
+self._client = httpx.AsyncClient(
+    http2=True,
+    timeout=httpx.Timeout(10.0, connect=5.0),
+    limits=httpx.Limits(
+        max_connections=20,
+        max_keepalive_connections=10,
+        keepalive_expiry=30.0,
+    ),
+)
+
+# WRONG — new client per call (TLS handshake per request, no pooling)
+async def fetch_data(self):
+    async with httpx.AsyncClient() as client:  # BAD
+        ...
+```
+
+## Concurrency
+
+- Use `asyncio.gather(*tasks, return_exceptions=True)` for parallel fetches.
+- Use `asyncio.wait(tasks, timeout=0.08, return_when=ALL_COMPLETED)` when
+  partial results are acceptable (scoring pipeline).
+- Use `asyncio.Semaphore` to limit concurrent external API calls.
+- Use `asyncio.TaskGroup()` for structured concurrency (Python 3.11+;
+  we are on 3.12).
+
+## Timeouts
+
+Every external I/O call MUST have a timeout. No exceptions.
+
+```python
+try:
+    result = await asyncio.wait_for(
+        self._client.get(url),
+        timeout=self._adaptive_timeout,
+    )
+except asyncio.TimeoutError:
+    logger.warning("Timeout fetching {} | timeout={}s", url, self._adaptive_timeout)
+    return self._empty_result(status="DEGRADED")
+```
+
+## Cancellation Safety
+
+Handle `asyncio.CancelledError` by RE-RAISING it. Never swallow it.
+
+```python
+try:
+    data = await self.fetch_data()
+except asyncio.CancelledError:
+    logger.info("Task cancelled, cleaning up")
+    raise  # ALWAYS re-raise
+except Exception as exc:
+    logger.error("Fetch failed | exc={}", exc)
+    return empty_result
+```
+
+## LanceDB
+
+LanceDB's Python client is sync-first. Every LanceDB call MUST be
+wrapped in `asyncio.to_thread()`:
+
+```python
+# CORRECT
+results = await asyncio.to_thread(
+    self._lance_table.search, query_vector, limit=top_k
+)
+
+# WRONG — blocks the event loop
+results = self._lance_table.search(query_vector, limit=top_k)
+```
+
+## Serialisation Pattern
+
+```python
+# CORRECT
+import msgspec
+body_bytes = msgspec.json.encode(payload_dict)
+decoded = msgspec.json.decode(response.content, type=TypedPayload)
+
+# WRONG
+import json
+body = json.dumps(payload_dict)  # banned
+```
+
+<CONSEQUENCE>
+Using synchronous HTTP calls (requests.get) inside async functions will block
+the entire event loop and freeze ALL concurrent agent scoring for the duration
+of that single network call. This turns 80ms parallel scoring into 800ms+ serial.
+Using stdlib `json` in hot paths burns 6–8× more CPU per signal than msgspec.
+Using `aioredis` puts you on an unmaintained library with known memory leaks;
+it also breaks the consistency invariant — one Redis client, one codebase.
+</CONSEQUENCE>

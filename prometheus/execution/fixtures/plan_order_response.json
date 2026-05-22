@@ -1,0 +1,9 @@
+{
+  "code": "00000",
+  "msg": "success",
+  "requestTime": 1700000000000,
+  "data": {
+    "orderId": "1234567890",
+    "clientOid": "test-client-oid"
+  }
+}

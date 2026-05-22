@@ -1,0 +1,11 @@
+[
+  {
+      "name": "okx_mcp",
+      "tier": 2,
+      "trust_rank": 82,
+      "ttl_seconds": 5,
+      "signal_gap": "Direct high-frequency perps data from OKX (second-largest derivatives venue). Live funding rates, order books, and futures basis. Complements CoinGlass aggregates with real-time source data. CCXT adapter OKX entry is fallback-only once this adapter is live.",
+      "notes": "Scoped to DerivativesAgent exclusively. TTL 5s for tickers/funding, 10s for order books. Upgrade to Tier 1 candidate after 200 paper trades. Dependency: CCXT readonly adapter must be updated to mark OKX as fallback after this adapter registers healthy.",
+      "enabled": true
+  }
+]

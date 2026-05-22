@@ -1,0 +1,1 @@
+"""ATLAS LLM prompt strings."""

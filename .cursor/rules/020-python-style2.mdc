@@ -1,0 +1,63 @@
+---
+description: Python 3.12 code style, naming conventions, and function patterns for ATLAS
+globs: ["**/*.py"]
+alwaysApply: true
+---
+
+# Python Code Style — ATLAS Conventions
+
+## Verbosity and Clarity
+
+- Code reads like English. No clever one-liners.
+- Every step on its own line. Variable names are long and descriptive.
+- Maximum 40 lines per function. Extract named helpers if approaching 40.
+- Type hints on EVERY function parameter and return value — no exceptions.
+- Type checker is `pyright`. `mypy` is banned.
+
+## Naming
+
+- Files and variables: `snake_case` — e.g. `data_manager.py`, `signal_score`
+- Classes: `PascalCase` — e.g. `LunarCrushProvider`, `SignalAggregator`
+- Constants: `SCREAMING_SNAKE_CASE` — e.g. `MAX_POSITION_SIZE`, `API_TIMEOUT`
+
+## Function Prefix Vocabulary
+
+Use these three prefixes consistently. They cover ~80% of all functions:
+
+| Prefix       | Use For                              | Example                                          |
+|-------------|--------------------------------------|--------------------------------------------------|
+| `fetch_`    | External API calls                   | `fetch_lunarcrush_sentiment(asset: str) -> SentimentData` |
+| `calculate_`| Logic, math, processing — no API calls| `calculate_confluence_score(signals: list[Signal]) -> float` |
+| `send_`     | Outbound actions — signals, notifications | `send_signal_to_prometheus(signal: SignalObject) -> bool` |
+
+## Data Models
+
+- Use Pydantic v2 `BaseModel` with `frozen=True` for all data transfer objects.
+- Use `Field(description="...")` on every field.
+- Use `field_validator` for cross-field validation.
+- NO `dataclasses` for domain models — use Pydantic BaseModel.
+
+## Financial Values — Decimal is Mandatory
+
+All financial fields use `decimal.Decimal`, never `float`:
+- prices, stop losses, take profits, PnL, fees, slippage, funding costs
+- account equity, margin, collateral
+
+Explicit exception: dimensionless technical indicators may use `float`:
+- RSI, MACD, stochastic oscillator values
+- confidence scores, probabilities, weights (0.0–1.0)
+
+## Time-Series Data
+
+- Use Polars `LazyFrame` for OHLCV and other time-series data.
+- `pandas` is banned outright.
+
+## Imports
+
+- Group: stdlib → third-party → local, separated by blank lines
+- Use `from __future__ import annotations` at top of every file
+
+## Configuration
+
+- `PolarisSettings` (pydantic-settings) is the ONLY source of config.
+- `os.getenv()` and `os.environ[...]` are banned in application code.

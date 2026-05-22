@@ -1,0 +1,3 @@
+{"signal_id":"smoke_sig_2","asset":"BTCUSDT","timestamp":1704196800000,"direction":"LONG","action":"OPEN","total_score":78.5,"confidence":0.72,"risk_veto":false,"ttl_seconds":7200}
+{"signal_id":"smoke_sig_5","asset":"BTCUSDT","timestamp":1704456000000,"direction":"LONG","action":"OPEN","total_score":78.5,"confidence":0.72,"risk_veto":false,"ttl_seconds":7200}
+{"signal_id":"smoke_sig_8","asset":"BTCUSDT","timestamp":1704715200000,"direction":"LONG","action":"OPEN","total_score":78.5,"confidence":0.72,"risk_veto":false,"ttl_seconds":7200}

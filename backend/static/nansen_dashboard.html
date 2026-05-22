@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nansen Intelligence Monitor | ATLAS</title>
+    <link rel="stylesheet" href="nansen_dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="atlas">ATLAS</span>
+                <span class="sub">INTELLIGENCE MONITOR</span>
+            </div>
+            <div class="status-badge live">LIVE FEED</div>
+        </header>
+
+        <main class="grid">
+            <!-- Left: Top Holders -->
+            <section class="card glass" id="holders-section">
+                <h3>TOP INSTITUTIONAL HOLDERS</h3>
+                <div class="chart-container">
+                    <div class="bar-row">
+                        <span class="label">Vanguard Group</span>
+                        <div class="bar-bg"><div class="bar-fill" style="width: 85%;"></div></div>
+                        <span class="value">$184.2B</span>
+                    </div>
+                    <div class="bar-row">
+                        <span class="label">BlackRock Inc.</span>
+                        <div class="bar-bg"><div class="bar-fill" style="width: 78%;"></div></div>
+                        <span class="value">$165.1B</span>
+                    </div>
+                    <div class="bar-row">
+                        <span class="label">State Street</span>
+                        <div class="bar-bg"><div class="bar-fill" style="width: 65%;"></div></div>
+                        <span class="value">$135.2B</span>
+                    </div>
+                    <div class="bar-row">
+                        <span class="label">Fidelity</span>
+                        <div class="bar-bg"><div class="bar-fill" style="width: 50%;"></div></div>
+                        <span class="value">$104.2B</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Center: Credit Governor -->
+            <section class="card glass highlight" id="governor-section">
+                <h3>CREDIT GOVERNOR</h3>
+                <div class="gauge-container">
+                    <svg viewBox="0 0 100 100" class="gauge">
+                        <circle class="gauge-bg" cx="50" cy="50" r="45"></circle>
+                        <circle class="gauge-progress" cx="50" cy="50" r="45" id="month-gauge"></circle>
+                    </svg>
+                    <div class="gauge-text">
+                        <span class="percent" id="month-percent">0%</span>
+                        <span class="desc">SYSTEM UTILIZATION</span>
+                    </div>
+                </div>
+                <div class="stats-list">
+                    <div class="stat-item">
+                        <span>MONTHLY LIMIT</span>
+                        <span class="stat-val" id="month-budget">$100,000</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>CURRENT USAGE</span>
+                        <span class="stat-val highlight-val" id="month-usage">$0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>STATUS</span>
+                        <span class="stat-val status-ok" id="governor-status">OPTIMAL</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right: Smart Money Flow -->
+            <section class="card glass" id="flow-section">
+                <h3>SMART MONEY FLOW</h3>
+                <div class="flow-list" id="flow-container">
+                    <!-- Sample items, will be populated by JS -->
+                    <div class="flow-item buy">
+                        <div class="flow-time">14:32:01</div>
+                        <div class="flow-body">
+                            <span class="inst">BLACKROCK</span>
+                            <span class="side">BUY</span>
+                            <span class="asset">SOL</span>
+                            <span class="amt">$42.5M</span>
+                        </div>
+                    </div>
+                    <div class="flow-item sell">
+                        <div class="flow-time">14:28:15</div>
+                        <div class="flow-body">
+                            <span class="inst">VANGUARD</span>
+                            <span class="side">SELL</span>
+                            <span class="asset">ETH</span>
+                            <span class="amt">-$12.8M</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="nansen_dashboard.js"></script>
+</body>
+</html>

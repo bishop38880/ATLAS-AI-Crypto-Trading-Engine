@@ -1,0 +1,101 @@
+
+description: ATLAS intelligence engine identity, boundaries, and architectural invariants
+globs: ["**/*.py"]
+alwaysApply: true
+---
+
+# ATLAS Intelligence Engine — Architectural Law
+
+You are building ATLAS, the pure intelligence layer of POLARIS, a
+multi-agent cryptocurrency trading intelligence platform.
+ATLAS watches, analyses, scores, and recommends. It NEVER acts.
+
+## The ATLAS / PROMETHEUS Hard Wall
+
+<ABSOLUTE_PROHIBITION>
+No module inside ATLAS may import, reference, or interact with:
+- Bitget, or ANY exchange SDK/API/client
+- Order placement, order management, or position tracking
+- Execution timing or latency optimisation for order routing
+- Portfolio P&L calculation
+- Account credentials or API keys for any exchange
+
+If you find yourself writing `import ccxt`, `from bitget`, `place_order`,
+`create_order`, `position`, `balance`, or any exchange-related code —
+STOP. You are in the wrong system. That belongs in PROMETHEUS.
+
+PROMETHEUS owns: Virtual OMS, RiskEnforcer, KillSwitch, BitgetCostModel,
+paper trading engine, and the BitgetExecutionClient. ATLAS owns
+intelligence, scoring, RAG, agents, and signal publication only.
+</ABSOLUTE_PROHIBITION>
+
+## Communication Path
+
+ATLAS publishes a structured signal JSON to a Redis channel using
+`msgspec.json.encode`. PROMETHEUS subscribes and consumes signals.
+This is the ONLY communication path. No shared modules, no direct
+function calls, no shared database tables.
+
+## Codebase Organisation
+
+Feature-based folders. Everything related to one concern lives together:
+
+```
+atlas/
+  providers/coinalyze/     # funding rates, OI
+  providers/hydra/         # custom liquidation cascade detection (replaces CoinGlass)
+  providers/lunarcrush/    # sentiment
+  providers/nansen/        # on-chain (MCP)
+  providers/dune/          # token metrics (MCP)
+  providers/messari/       # token unlocks (authoritative)
+  providers/hypertracker/  # Hyperliquid supplementary (~5% weight)
+  providers/pyth/          # price feed
+  providers/fred/          # macro
+  agents/regime/           # agent, models, tests
+  agents/derivatives/      # agent, models, tests
+  orchestrator/            # coordination, scoring (asyncio-based)
+  rag/                     # pipeline, Qdrant + LanceDB queries, verifier
+  signals/                 # signal builder, Redis publisher (msgspec)
+  core/                    # registry, startup, health, validation gate
+  shared/                  # logging (Loguru), config (PolarisSettings), utils
+```
+
+## Central Registry Rule
+
+No module may import directly from another feature folder.
+All cross-feature access goes through `core/registry.py`.
+
+## Existing Patterns — Follow These Exactly
+
+- `AgentResult` — frozen Pydantic v2 model, every agent returns this
+- `PipelineOrchestrator` — concurrent dispatch via `asyncio.gather` or
+  `asyncio.TaskGroup` (Python 3.12). NEVER `ThreadPoolExecutor` — all
+  I/O is async.
+- `ConfluenceScorer` — 220-point fusion, normalises to 0–100. The
+  220-point system is sacred. Overlay systems (regime, macro, whale,
+  confidence) modify position sizing downstream, NOT confluence scores.
+- Agents are stateless. No global variables. No state between cycles.
+- `MistralEmbeddingClient` for embeddings (interim; local Qwen planned).
+- All signal publication serialised via `msgspec.json.encode`.
+
+## Observability
+
+- `Langfuse` for LLM tracing (self-hosted Docker Compose, SDK ≥3.0).
+- Infrastructure metrics (Redis, PostgreSQL, HTTP) may use
+  `prometheus_client` separately — do not conflate the two.
+
+## Data Provider Invariants
+
+- **Hydra** (custom-built WebSocket ingestor) handles liquidation
+  cascade detection across Binance, Bybit, OKX, Bitget, Hyperliquid.
+  CoinGlass is fully removed — no V3 or V4 references anywhere.
+- **Coinalyze** handles funding rates and OI. Multi-key round-robin
+  rate limiter with Redis sliding window counters (~5 keys for 33-asset
+  coverage).
+- **Hyperliquid** requires dual-method detection: trades-stream
+  heuristics + HLP vault REST fallback. No dedicated public
+  liquidation stream exists.
+- **Dune Analytics** and **Nansen** accessed exclusively via MCP
+  servers — direct REST calls banned.
+- **Messari** is authoritative for token unlocks, overrides Dune
+  unlock data when both present.

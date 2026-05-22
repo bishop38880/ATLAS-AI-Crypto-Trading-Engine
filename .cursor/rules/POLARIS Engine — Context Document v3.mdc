@@ -1,0 +1,463 @@
+# POLARIS Engine — Context Document v3.0
+**Paste this at the top of every Antigravity / AI coding session before the task prompt.**
+
+Exchange (execution venue): Bitget perpetual futures
+Languages: Python 3.12 · TypeScript · Node.js
+Date of doc: April 2026
+
+---
+
+> **HARD LIMIT — ATLAS / PROMETHEUS WALL**
+> No module inside **ATLAS** may import, reference, or interact with exchange execution — no orders, no positions, no credentials, no Bitget execution API. Execution belongs exclusively to **PROMETHEUS**. The Redis channel `polaris:signals:{asset}` is the only permitted communication path from ATLAS to PROMETHEUS. Data-provider *name* awareness is permitted inside ATLAS; exchange *execution* awareness is not.
+
+> **HARD LIMIT — HYDRA ISOLATION**
+> HYDRA is a **sibling service**, not an ATLAS module. It is read-only, uses Redis DB 1 with the `hydra:` key prefix, holds zero exchange credentials, and is completely isolated from ATLAS and PROMETHEUS. ATLAS never imports HYDRA; HYDRA never imports ATLAS/PROMETHEUS.
+
+---
+
+## 0. Session Bootstrap — Confirm Before Writing Code
+
+Before writing a single line of code, confirm you have read this document and understand:
+
+1. The three-layer architecture (ATLAS / PROMETHEUS / POLARIS Dashboard) plus HYDRA as a sibling
+2. The **Architectural Invariant Table** in Section 2 — every banned item and its required replacement
+3. The 220-point scoring system is **sacred** — overlays adjust position sizing, never scores
+4. Redis pub/sub on `polaris:signals:{asset}` is the only ATLAS → PROMETHEUS path
+5. CoinGlass is **permanently removed** — HYDRA handles liquidation data, Coinalyze handles funding/OI
+6. The pytest floor (run from the `Engine 8` project root, not the ATLAS subdirectory) must never decrease
+7. Every new file obeys the 40-line-per-function cap, `Decimal` for money, `Loguru` structured kwargs, `msgspec` for JSON, `pyright --pythonversion 3.12` for type checking
+
+---
+
+## 1. System Identity & Layers
+
+### 1.1 Four logical systems, one project root
+
+Project root: `C:\Users\BISHOP\Desktop\Engine 8\`
+
+| System | Role | Location | Credentials |
+|---|---|---|---|
+| **ATLAS** | Intelligence / signal generation (zero exchange awareness, zero execution) | `Engine 8\` (Python monorepo root) | Data-provider keys only |
+| **PROMETHEUS** | Execution layer (paper trading engine, live OMS, risk enforcement, position reconciliation) | `Engine 8\prometheus\` | Bitget execution credentials |
+| **POLARIS Dashboard** | Frontend (Vite + React 18 + TypeScript) | `Engine 8\POLARIS\polaris-frontend\` | None (reads API/WebSocket only) |
+| **HYDRA** | Standalone liquidation cascade detector (read-only, isolated) | Sibling directory | Read-only exchange streams |
+
+### 1.2 What ATLAS is and is not
+
+ATLAS receives data from providers, runs it through agents, produces a 220-point confluence score, and publishes a structured `SignalOutput` to Redis. ATLAS **watches, analyses, scores, recommends**. It never acts.
+
+ATLAS is **not** an execution system, **not** aware of order placement, **not** a backtester (backtesting runs offline), **not** a live strategy optimizer.
+
+### 1.3 PROMETHEUS responsibilities
+
+PROMETHEUS subscribes to `polaris:signals:{asset}`, applies final risk checks, and executes. Its core components:
+
+- **Virtual OMS** (paper trading) — order lifecycle simulation
+- **BitgetCostModel** — fee, slippage, funding cost modelling
+- **RiskEnforcer** — pre-trade veto with absolute authority
+- **KillSwitch** — standalone process, FIA-compliant
+- **PerformanceCalculator** — PnL, drawdown, exposure accounting
+- **Position reconciliation loop** — 60-second cadence against exchange state
+
+### 1.4 HYDRA responsibilities
+
+Standalone Node.js / TypeScript service. Monitors exchange liquidation streams, detects cascade conditions, publishes detections to Redis DB 1 under the `hydra:` prefix. Frontend dashboard on port 3001, API on port 8001. **Never** holds exchange execution credentials. Sessions 09–13 (HYDRA Phase 2 automated execution) are **deferred**; current HYDRA is Phase 1 read-only.
+
+### 1.5 Ports
+
+| Service | Port |
+|---|---|
+| POLARIS frontend | 3000 |
+| HYDRA dashboard | 3001 |
+| ATLAS backend | 8000 |
+| HYDRA API | 8001 |
+
+---
+
+## 2. Architectural Invariant Table — NON-NEGOTIABLE
+
+Every row here is a hard wall. Violations must be caught before code is committed. These map directly to SENTINEL hard-wall checks (HW-01 through HW-21).
+
+| Domain | Banned | Required replacement |
+|---|---|---|
+| Type checking | `mypy` | `pyright --pythonversion 3.12` |
+| Redis client | `aioredis` | `redis.asyncio` |
+| JSON serialization | stdlib `json`, `orjson` | `msgspec` |
+| Embeddings | `sentence-transformers` (384-dim) | `MistralEmbeddingClient` (1024-dim, interim; future: local model) |
+| Vector search | `pgvector`, `FAISS`, `BM25`, `RRF` | **Qdrant** (primary) + **LanceDB** hot standby via `asyncio.to_thread()` |
+| ORM | `SQLAlchemy` | `asyncpg` directly |
+| Config | `os.getenv()` | `PolarisSettings` (pydantic-settings) |
+| Logging | anything else | `Loguru` only, structured kwargs, **no f-strings in loggers** |
+| Financial math | `float` | `Decimal` (exception: dimensionless indicators like RSI correctly use `float`) |
+| Model persistence | `pickle`, `joblib` | `msgspec` JSON serialization of weights |
+| HTTP | `requests` | `httpx` |
+| Liquidation data | **CoinGlass (V3 or V4)** | **HYDRA** (custom cascade detector) |
+| Funding / OI data | CoinGlass | **Coinalyze** (multi-key round-robin rate limiter, 5–6 API keys) |
+| LLM cloud API | `Grok`, legacy providers | **DeepSeek** (sole cloud reasoning API) |
+| LLM observability | Prometheus/Grafana for AI tracing | **Langfuse** (self-hosted Docker, SDK ≥3.0) |
+| ML sync calls | direct calls to sklearn/hmmlearn/scipy/torch | **`asyncio.to_thread()`** wrapper for all CPU-bound ML |
+| LanceDB calls | synchronous | **`asyncio.to_thread()`** — always |
+| Function length | > 40 lines | Extract named helpers |
+| Banned libs | `pandas`, `gymnasium`, `stable-baselines3`, `BaseProvider` class | — |
+
+**Known Antigravity failure modes** (reintroduced repeatedly if the invariants are not stated explicitly in every session prompt):
+
+- Reimports `aioredis`, `mypy`, `orjson`, `pgvector`, `sentence-transformers`
+- Reintroduces CoinGlass references (imports, config keys, provider classes)
+- Reintroduces the old 80 req/min rate limit from the CoinGlass era
+- Resurrects the `BaseProvider` class
+- References stale session files after they've been superseded
+
+---
+
+## 3. Current Architecture
+
+### 3.1 ATLAS pipeline
+
+1. `PipelineOrchestrator` dispatches agents concurrently (async, not `ThreadPoolExecutor`)
+2. Each agent returns an `AgentResult` with category-level point attribution
+3. `ConfluenceScorer` produces the 220-point deterministic score
+4. `SignalOutput` is published to `polaris:signals:{asset}` via `redis.asyncio`
+
+Target cycle latency: < 400 ms. Sequential agent dispatch is forbidden.
+
+### 3.2 Agents
+
+⚠️ **CONFIRM** — base set carried from v2.1, but provider wiring has changed substantially with CoinGlass removal. Verify against current codebase before a session that touches agents.
+
+| Agent | Primary data sources (current) |
+|---|---|
+| DerivativesAgent | **Coinalyze** (funding, OI) + **HYDRA** detections (liquidation context) |
+| TechnicalAgent | Bitget OHLCV + order book |
+| OnChainAgent | ⚠️ CONFIRM surviving provider (Nansen MCP was prior plan) |
+| SentimentAgent | ⚠️ CONFIRM surviving provider (LunarCrush was prior plan) |
+
+### 3.3 Providers (current confirmed set)
+
+| Provider | Role | Notes |
+|---|---|---|
+| **Bitget** | OHLCV, order book, market data; also execution venue (PROMETHEUS only) | ATLAS sees market data, never execution |
+| **Binance / OKX / Bybit** | Exchange data for cross-exchange validation | Monitored read-only |
+| **Hyperliquid** | Monitored via dual-method: trades stream heuristics + HLP vault REST fallback | |
+| **Coinalyze** | Funding rates, open interest | Multi-key round-robin rate limiter, 5–6 keys recommended |
+| **HYDRA (sibling)** | Liquidation cascade detections | Read from Redis DB 1, `hydra:` prefix |
+
+**Removed / banned:** CoinGlass (any version). No references anywhere in code, config, or session prompts.
+
+---
+
+## 4. 220-Point Confluence Scoring — Sacred
+
+### 4.1 The system is deterministic and sacred
+
+The 220-point scorer is **not modified by overlay systems**. The BTC Systemic Cascade Overlay (and any future overlay) may adjust **position sizing**, never the raw score. Any proposed change to point weights requires explicit human approval and a document update before code.
+
+### 4.2 Scoring rules
+
+- Funding Z-score is **non-linear** — predictive power exists only at statistical extremes (|Z| > 2.5 SD = full points; 1.5–2.5 SD = partial; < 1.5 SD = zero)
+- Funding *costs* adjust the **leverage tier**, never the confluence score
+- Directional conflict across agents triggers a conviction downgrade multiplier
+- Scoring is integer arithmetic only; every point attribution is logged for audit
+- Market Context is a **regime gate**, not an intraday predictor
+
+### 4.3 Signal thresholds
+
+⚠️ **CONFIRM** — thresholds and category splits from v2.1. Carry forward unless current scorer differs.
+
+| Label | Score | Position size |
+|---|---|---|
+| STRONG | 180–220 | 5.0% |
+| MODERATE | 150–179 | 3.5% |
+| WEAK | 120–149 | 2.0% |
+| NO TRADE | 0–119 | 0% |
+
+---
+
+## 5. Signal Output Schema
+
+Fixed. No field may be added or removed without updating this document. PROMETHEUS depends on the exact structure.
+
+```json
+{
+  "timestamp": "2026-04-21T14:30:00Z",
+  "decision": "Strong Buy | Buy | Hold | Sell | Strong Sell | No Position",
+  "asset": "BTC/USDT",
+  "timeframe": "30m",
+  "action": {
+    "side": "buy",
+    "type": "limit",
+    "amount": "0.15",
+    "price": "87250.00",
+    "stop_loss": "85000.00",
+    "take_profit": "92000.00"
+  },
+  "conviction": 184,
+  "risk_level": "Medium",
+  "weighted_breakdown": {
+    "derivatives": 62,
+    "onchain": 44,
+    "technical": 38,
+    "sentiment": 24,
+    "context": 16,
+    "total": 184
+  },
+  "provider_breakdown": {
+    "coinalyze":    { "score": 81, "signal": "bullish", "status": "healthy" },
+    "bitget":       { "score": 79, "signal": "bullish", "status": "healthy" },
+    "hydra":        { "score": 74, "signal": "bullish", "status": "healthy" }
+  },
+  "reasoning_summary": "2–3 sentence synthesis of strongest convergences.",
+  "key_convergences": ["Funding Z-score beyond 2.5 SD", "Liquidation cluster identified by HYDRA"],
+  "key_risks": ["Resistance cluster at $89k", "Opposite-side cascade risk above"],
+  "suggested_next_actions": ["Monitor 15m for entry refinement", "Re-run at next 30m close"]
+}
+```
+
+**Rules:**
+
+- `conviction`: integer 0–220
+- `decision`: exactly one of the six permitted strings
+- All money fields (amount, price, stop_loss, take_profit) serialize from `Decimal` — never from `float`
+- `provider_breakdown` always present even if degraded; degraded providers show `status: "degraded"` and `score: 0`
+- `action` populated only when decision is Buy / Strong Buy / Sell / Strong Sell; `{}` otherwise
+- `timestamp` always UTC, ISO 8601
+
+---
+
+## 6. Risk Management Constants
+
+| Parameter | Limit |
+|---|---|
+| Per-trade risk maximum | 2% of portfolio |
+| Position size cap | 5% of portfolio |
+| Total portfolio exposure ceiling | 25% |
+| Margin mode | Isolated margin on all positions |
+
+The PROMETHEUS `RiskEnforcer` holds absolute veto authority. If a veto is issued, the final decision is NO POSITION regardless of confluence score. No override path exists.
+
+---
+
+## 7. RAG Pipeline & Memory
+
+### 7.1 Stack
+
+| Layer | Technology |
+|---|---|
+| Vector store (primary) | **Qdrant** |
+| Vector store (hot standby) | **LanceDB** via `asyncio.to_thread()` (always) |
+| Hot cache | Redis (24h) |
+| Historical record | PostgreSQL via `asyncpg` |
+| Embeddings | `MistralEmbeddingClient` (1024-dim, interim) — migration procedure in `EMBEDDING_MODEL_MIGRATION.md` |
+
+**Banned by name in `.mdc` rules:** FAISS, BM25, RRF, pgvector.
+
+### 7.2 Storage split
+
+- **Live state (24h hot path)** — Redis: provider cache, agent status, current market state, provider health flags, Redis DB 1 for `hydra:*` keys
+- **Historical record** — PostgreSQL (asyncpg): all signal history, agent verdicts, provider snapshots, outcome tracking
+- **Pattern memory** — Qdrant (primary) + LanceDB (standby): semantic embeddings of historical contexts
+
+### 7.3 Post-Trade Learning
+
+PROMETHEUS writes trade outcomes back to ATLAS exclusively via the Post-Trade Learning MCP. Required fields: `signal_id`, `asset`, `signal_decision`, `signal_conviction`, `entry_price`, `exit_price`, `exit_reason`, `pnl_pct`, `duration_seconds`, `market_moved_as`, `notes`. ATLAS agent weights are never modified autonomously — weight changes require explicit human review and a document update.
+
+---
+
+## 8. LLM Stack
+
+| Role | Model | Notes |
+|---|---|---|
+| Sole cloud reasoning API | **DeepSeek** | Grok fully removed |
+| Embeddings | Mistral (interim) | 1024-dim; local model planned |
+| Planned local pipeline model | Qwen 3.5 (30B or 70B) | Deferred to Phase G (RTX 3090) |
+| Planned local embedding model | TBD | Runs on RTX 5060 Ti |
+| Observability | **Langfuse** | Self-hosted Docker, SDK ≥ 3.0 |
+
+No model name is hardcoded. All model references go through `PolarisSettings` config keys.
+
+---
+
+## 9. Hardware
+
+- **Current:** Ryzen 9 3950X, 128 GB DDR4, RTX 5060 Ti 16 GB (local LLM inference)
+- **Phase G (planned):** add RTX 3090
+- **Phase H3 / H4 (planned):** GNN phases
+- **Phase RLVR (planned):** 19B training layer
+
+GNN inference runs on CPU to preserve GPU VRAM for local LLM inference. PyTorch Geometric requires NumPy/SciPy deterministic fallbacks.
+
+---
+
+## 10. Frontend Stack (POLARIS Dashboard)
+
+| Layer | Technology |
+|---|---|
+| Build | Vite — dev server at `localhost:3000` |
+| Framework | React 18 + TypeScript |
+| Styling | Tailwind v4 (CSS-based config via `@tailwindcss/vite`; no `tailwind.config.js`) |
+| Routing | TanStack Router |
+| Server state | TanStack Query (all REST data) |
+| Client state | Zustand (slice-based subscriptions for WebSocket-driven state) |
+| Components | shadcn/ui (Radix-based) |
+
+**Vite proxy:** `/api/*` → `http://localhost:8000`, `/ws/*` → WebSocket to port 8000.
+
+**RULE** Zero hardcoded URLs in frontend. All base URLs resolve from environment variables. The `resolveWsBase()` pattern in `use-dashboard-prices.ts` is canonical. Do not invent alternatives. Zero `ws://localhost` or `http://localhost` strings in frontend source.
+
+---
+
+## 11. Timeframes
+
+| Timeframe | Role |
+|---|---|
+| 1d | Macro context, regime classification |
+| 4h | Swing structure, key S/R |
+| 1h | Momentum bridge |
+| **30m** | **PRIMARY — all signals must align here** |
+| 15m | Entry refinement and exit timing only |
+
+ATLAS must not issue a 30m signal that conflicts with 4h and 1d direction unless conviction ≥ 185 (220-point scale).
+
+---
+
+## 12. Asset Universe
+
+⚠️ **CONFIRM** — 33-asset count was architecturally tied to the CoinGlass 80 req/min ceiling, which no longer applies. Verify whether the universe has since been expanded or held. Tier 1 and asset list below carried forward from v2.1 as the last documented state.
+
+### Tier 1 — Always On (6 assets)
+BTC · ETH · SOL · BNB · XRP · AVAX
+
+### Tier 2 — Rotation Pool (27 assets, as of last documented state)
+DOGE, LINK, SUI, INJ, TAO, RENDER, ICP, HBAR, ADA, DOT, MATIC, LTC, ATOM, UNI, AAVE, LDO, JUP, WIF, PEPE, TRX, TON, NEAR, APT, OP, ARB, FIL, SEI
+
+All assets are perpetual futures on Bitget. Perp availability verification is a PROMETHEUS concern — ATLAS has zero exchange awareness.
+
+---
+
+## 13. Code Style
+
+- Verbose, explicit; variable names long and descriptive; no clever one-liners
+- Maximum 40 lines per function — extract named helpers if approaching the limit
+- Type hints on every parameter and return value — no exceptions
+- Docstring on every function (Args / Returns / Raises)
+- Files and variables `snake_case`, classes `PascalCase`, constants `SCREAMING_SNAKE_CASE`
+- Prefix vocabulary: `fetch_` for external API calls, `calculate_` for pure logic, `send_` for outbound actions
+
+### Error handling
+
+Fail loud but gracefully. Every error logged with full detail via Loguru structured kwargs (no f-strings in loggers). The failing module returns a safe empty value. The system continues with reduced data and marks the provider as DEGRADED in Redis. Never swallow errors silently, never let one provider failure cascade into a system crash.
+
+---
+
+## 14. State Management
+
+No global variables in ATLAS. State is always read from Redis or PostgreSQL. No module holds state in memory between cycles.
+
+| Redis key pattern | Contents |
+|---|---|
+| `provider:{name}:{asset}:{timeframe}` | Provider cache |
+| `agent:{name}:status` | Agent health |
+| `market:{asset}:{timeframe}:latest` | Latest market state |
+| `polaris:signals:{asset}` | Signal pub/sub channel (ATLAS → PROMETHEUS) |
+| `semantic_cache:{provider}:{asset}:{embedding_hash}` | Semantic cache entries |
+| `hydra:*` (Redis DB 1) | HYDRA cascade detections (read-only from ATLAS) |
+
+---
+
+## 15. Validation Gate
+
+Lives in `core/validation_gate.py`. Every provider payload passes through before reaching any agent. Agents never call providers directly — they request data through the registry.
+
+Four checks, all must pass:
+1. **Schema validation** — Pydantic model validation
+2. **Staleness** — older than 2× provider TTL = STALE (rejected); 1–2× TTL = DEGRADED (passed with flag)
+3. **Anomaly detection** — rolling Z-score vs last 100 values; |Z| > 4.0 attaches `anomaly_flags` (passed, not rejected)
+4. **Cross-source consistency** — > 0.5% price divergence or > 2% OI divergence attaches a consistency warning
+
+Schema or staleness failure marks the provider DEGRADED in Redis and returns empty data. Anomaly and consistency flags are passed through; agents must reason about them.
+
+---
+
+## 16. OBTI (Order Book Toxicity Index)
+
+OBTI is for PROMETHEUS's Execution Agent only, reading from Redis. It computes a rolling cancel-to-trade ratio over the top 10 price levels and yields directional toxicity (`obti_bid`, `obti_ask`) and Effective Liquidity. Pending design decisions (four outstanding questions on Bitget delta semantics where `size=0` = deletion, adaptive MAD-based thresholds vs. fixed 0.7 cutoff, and separation from HYDRA's VPIN calculator) must be resolved before the session prompt is written. **Do not implement OBTI until those four questions are answered.**
+
+---
+
+## 17. Tax & Compliance
+
+- **Tax logging:** CRA-compliant ACB (Adjusted Cost Base) method
+- **FX rates:** Bank of Canada USD/CAD
+- **Export:** T2125 format
+
+---
+
+## 18. Out of Scope — What ATLAS Does Not Build
+
+If Antigravity starts building any of the following inside ATLAS, stop immediately — it belongs elsewhere:
+
+- Order placement, order management, position tracking → **PROMETHEUS**
+- Bitget execution API, CCXT, any exchange execution → **PROMETHEUS**
+- Real-time backtesting during live operation → **offline toolchain**
+- Live strategy parameter optimisation → **offline toolchain**
+- Portfolio P&L calculation → **PROMETHEUS**
+- Liquidation detection → **HYDRA**
+- Order routing / execution timing → **PROMETHEUS**
+
+---
+
+## 19. Antigravity Workflow Rules
+
+1. **Review-then-execute.** Claude writes or reviews session prompts; Matt approves; only then Antigravity executes. No Antigravity execution without review.
+2. **SENTINEL audit.** Session prompts are audited by SENTINEL (21 hard-wall invariants, seven-pass protocol) before reaching Antigravity.
+3. **Every session prompt includes** a NON-NEGOTIABLE INVARIANTS section, an Anti-Pattern Checklist footer, and a session-specific persona.
+4. **Diagnostic-first for bugs.** Before fixing, establish whether data is arriving at each pipeline stage (WebSocket → Redis → processor → broadcaster → store → render). Antigravity rewrites the wrong layer without this.
+5. **Parallelization check.** Sessions sharing file mutations cannot be parallelized (e.g., sessions both mutating `scorer.py` and `signal.py`).
+6. **New dependency approval.** New dependencies (e.g., PyWavelets) require explicit approval before being added.
+7. **Context fixation recovery.** If Antigravity loops on plan submission instead of executing, interrupt with forceful, file-by-file execution instructions.
+8. **One file per document.** No numbered copies — they pollute context. Changelogs live inside documents.
+
+---
+
+## 20. Key Architectural Invariants — Condensed
+
+These summarise the SENTINEL hard walls (HW-01 through HW-21). Never violated:
+
+1. ATLAS has zero exchange execution awareness. CCXT and exchange execution belong in PROMETHEUS.
+2. HYDRA is read-only, isolated, Redis DB 1, `hydra:` prefix, zero exchange credentials.
+3. Funding costs adjust leverage tier, never confluence score.
+4. The 220-point scorer is sacred; overlays adjust position sizing only.
+5. Every learned component requires a deterministic fallback.
+6. Shadow-before-live discipline for all new signals.
+7. Documentation matches implementation; this document is authoritative.
+8. No phase promotion without explicit human approval and a document update.
+9. `asyncpg` only; no SQLAlchemy ORM.
+10. RAG stack is **Qdrant primary + LanceDB standby**. Not pgvector, FAISS, BM25, or RRF.
+11. Pytest floor ≥ current count. Run from `Engine 8` project root, not ATLAS subdirectory. `pip install -e .` required.
+12. All money in `Decimal`. Serialize through `msgspec`. `float` only for dimensionless indicators.
+13. `redis.asyncio` not `aioredis`. `pyright` not `mypy`. `Loguru` only, structured kwargs.
+14. CoinGlass is permanently removed. HYDRA + Coinalyze replace it.
+15. DeepSeek is the sole cloud reasoning API. No Grok.
+16. Langfuse (self-hosted, SDK ≥ 3.0) for LLM observability. Not Prometheus/Grafana for AI tracing.
+17. LanceDB calls always via `asyncio.to_thread()`. All CPU-bound ML via `asyncio.to_thread()`.
+18. Max 40 lines per function.
+19. No `BaseProvider` class. No pandas, gymnasium, stable-baselines3.
+20. Frontend: zero hardcoded URLs. Canonical pattern is `resolveWsBase()`.
+21. Model persistence via `msgspec` JSON; never `pickle` or `joblib`.
+
+---
+
+## 21. Versioning & Change Log
+
+| Version | Date | Changes |
+|---|---|---|
+| v1.0 | Pre-Sprint 1 | Initial design: 10-agent architecture, pgvector RAG, 100-point scoring |
+| v2.0 | 2026-03-09 | Sprint 1: 4 agents, 4 providers, 220-point scoring, Qdrant + FAISS + BM25 RAG, asyncpg, RTX 3090 + 5060 Ti target, DeepSeek R1/V3 routing, shadow metrics, MARL framework, GNN roadmap |
+| v2.1 | 2026-03-18 | Frontend rebuild to Vite + React 18. Asset universe expanded to 33. Helius promoted. Cascade Trade finalized. |
+| **v3.0** | **2026-04-21** | **Full architectural resync. CoinGlass permanently removed; HYDRA + Coinalyze introduced. RAG stack corrected to Qdrant + LanceDB (FAISS, BM25, RRF, pgvector all banned). Embeddings moved to MistralEmbeddingClient 1024-dim. DeepSeek sole cloud LLM (Grok removed). `redis.asyncio` replaces `aioredis`. `pyright` replaces `mypy`. `msgspec` replaces stdlib `json` and `orjson`. `Decimal` mandated for financial math. Langfuse SDK ≥3.0 self-hosted for LLM observability. Three-layer split codified (ATLAS / PROMETHEUS / POLARIS Dashboard) with HYDRA as sibling service. PROMETHEUS paper trading engine components documented. SENTINEL 21 hard walls summarized. OBTI gated on four pending design decisions. Known Antigravity failure modes enumerated.** |
+
+---
+
+*This document is the single source of truth for all POLARIS Engine build sessions.*
+*Update this document before changing any architectural decision.*
+*Context Document v3.0 | POLARIS Engine | April 2026*

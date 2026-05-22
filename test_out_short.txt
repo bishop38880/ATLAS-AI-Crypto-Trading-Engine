@@ -1,0 +1,69 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-8.4.1, pluggy-1.6.0
+benchmark: 5.1.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/bi/Desktop/Engine 8/ATLAS
+configfile: pyproject.toml
+plugins: mock-3.14.1, json-report-1.5.0, anyio-4.12.1, asyncio-1.1.0, langsmith-0.6.0, hydra-core-1.3.2, Faker-37.5.3, respx-0.22.0, clarity-1.0.1, metadata-3.1.1, timeout-2.4.0, benchmark-5.1.0, hypothesis-6.141.0, cov-6.2.1, repeat-0.9.4, xdist-3.7.0, html-4.1.1
+asyncio: mode=auto, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collected 6 items
+
+atlas/rag/test_cache_semantic.py FF..F.                                  [100%]
+
+=================================== FAILURES ===================================
+_______________________ test_identical_prompt_cache_hit ________________________
+atlas/rag/test_cache_semantic.py:45: in test_identical_prompt_cache_hit
+    assert entry is not None
+E   assert None is not None
+---------------------------- Captured stderr setup -----------------------------
+2026-04-21 16:23:06.200 | WARNING  | atlas.rag.embedding_service:__init__:17 - MistralEmbeddingClient not yet built; using 1024-dim zero vectors.
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 16:23:06.207 | WARNING  | atlas.rag.cache_semantic:search:96 - Qdrant search failed, falling back to LanceDB: 'AsyncQdrantClient' object has no attribute 'search'
+______________________ test_paraphrased_prompt_cache_hit _______________________
+atlas/rag/test_cache_semantic.py:59: in test_paraphrased_prompt_cache_hit
+    assert entry is not None
+E   assert None is not None
+---------------------------- Captured stderr setup -----------------------------
+2026-04-21 16:23:06.297 | WARNING  | atlas.rag.embedding_service:__init__:17 - MistralEmbeddingClient not yet built; using 1024-dim zero vectors.
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 16:23:06.302 | WARNING  | atlas.rag.cache_semantic:search:96 - Qdrant search failed, falling back to LanceDB: 'AsyncQdrantClient' object has no attribute 'search'
+_________________________ test_lancedb_fallback_works __________________________
+atlas/rag/test_cache_semantic.py:107: in test_lancedb_fallback_works
+    mocker.patch.object(
+/home/bi/.local/lib/python3.10/site-packages/pytest_mock/plugin.py:288: in object
+    return self._start_patch(
+/home/bi/.local/lib/python3.10/site-packages/pytest_mock/plugin.py:257: in _start_patch
+    mocked: MockType = p.start()
+/usr/lib/python3.10/unittest/mock.py:1595: in start
+    result = self.__enter__()
+/usr/lib/python3.10/unittest/mock.py:1447: in __enter__
+    original, local = self.get_original()
+/usr/lib/python3.10/unittest/mock.py:1420: in get_original
+    raise AttributeError(
+E   AttributeError: <qdrant_client.async_qdrant_client.AsyncQdrantClient object at 0x714e100c0580> does not have the attribute 'search'
+---------------------------- Captured stderr setup -----------------------------
+2026-04-21 16:23:06.357 | WARNING  | atlas.rag.embedding_service:__init__:17 - MistralEmbeddingClient not yet built; using 1024-dim zero vectors.
+=============================== warnings summary ===============================
+atlas/rag/test_cache_semantic.py::test_identical_prompt_cache_hit
+atlas/rag/test_cache_semantic.py::test_paraphrased_prompt_cache_hit
+atlas/rag/test_cache_semantic.py::test_different_topic_prompt_cache_miss
+atlas/rag/test_cache_semantic.py::test_expired_entry_cache_miss
+atlas/rag/test_cache_semantic.py::test_lancedb_fallback_works
+atlas/rag/test_cache_semantic.py::test_cleanup_expired
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/rag/cache_semantic.py:53: DeprecationWarning: table_names() is deprecated, use list_tables() instead
+    if self._collection not in self._lancedb.table_names():
+
+atlas/rag/test_cache_semantic.py::test_identical_prompt_cache_hit
+atlas/rag/test_cache_semantic.py::test_paraphrased_prompt_cache_hit
+atlas/rag/test_cache_semantic.py::test_different_topic_prompt_cache_miss
+atlas/rag/test_cache_semantic.py::test_expired_entry_cache_miss
+atlas/rag/test_cache_semantic.py::test_lancedb_fallback_works
+atlas/rag/test_cache_semantic.py::test_cleanup_expired
+  /usr/lib/python3.10/threading.py:953: DeprecationWarning: table_names() is deprecated, use list_tables() instead
+    self._target(*self._args, **self._kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED atlas/rag/test_cache_semantic.py::test_identical_prompt_cache_hit - as...
+FAILED atlas/rag/test_cache_semantic.py::test_paraphrased_prompt_cache_hit - ...
+FAILED atlas/rag/test_cache_semantic.py::test_lancedb_fallback_works - Attrib...
+=================== 3 failed, 3 passed, 12 warnings in 2.10s ===================

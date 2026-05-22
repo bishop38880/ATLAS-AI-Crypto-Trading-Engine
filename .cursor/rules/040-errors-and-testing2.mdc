@@ -1,0 +1,148 @@
+---
+description: Error handling philosophy and testing requirements for ATLAS
+globs: ["**/*.py"]
+alwaysApply: true
+---
+
+# Error Handling — Fail Loud, Recover Gracefully
+
+## Philosophy
+
+Every error is logged with full detail. The failing module returns a safe
+empty value. The rest of the system continues with reduced data.
+
+## Rules
+
+- Never swallow errors silently. Never use bare `except: pass`.
+- Never let one provider failure cascade into a system crash.
+- Always log: which provider failed, what the error was, timestamp, asset context.
+- Mark provider status as DEGRADED in Redis immediately on failure.
+- On provider failure: return empty data immediately. Do not retry.
+  Do not block. Retries for transient external failures belong in an
+  explicit circuit-breaker layer (`pybreaker`), not in every call site.
+- `asyncio.CancelledError` is ALWAYS re-raised. Never caught and swallowed.
+
+## Pattern
+
+```python
+async def fetch_funding_rates(self, asset: str) -> FundingData:
+    """Fetch funding rates for asset. Returns empty on failure."""
+    try:
+        response = await asyncio.wait_for(
+            self._client.get(f"{self._base_url}/funding/{asset}"),
+            timeout=self._timeout,
+        )
+        response.raise_for_status()
+        raw_payload = msgspec.json.decode(response.content, type=FundingPayload)
+        return self._transform_funding_data(raw_payload)
+
+    except asyncio.CancelledError:
+        raise  # ALWAYS re-raise
+
+    except httpx.HTTPStatusError as exc:
+        logger.error(
+            "Funding rate fetch failed | asset={} | status={} | body={}",
+            asset, exc.response.status_code, exc.response.text[:200],
+        )
+        await self._mark_degraded("coinalyze")
+        return FundingData.empty(asset=asset, status="DEGRADED")
+
+    except (httpx.TimeoutException, asyncio.TimeoutError):
+        logger.warning("Funding rate timeout | asset={} | timeout={}s", asset, self._timeout)
+        await self._mark_degraded("coinalyze")
+        return FundingData.empty(asset=asset, status="DEGRADED")
+
+    except Exception as exc:
+        logger.exception("Unexpected funding rate error | asset={}", asset)
+        await self._mark_degraded("coinalyze")
+        return FundingData.empty(asset=asset, status="DEGRADED")
+```
+
+## Logging — Loguru
+
+<ABSOLUTE_RULE>
+Loguru uses POSITIONAL format substitution, NOT keyword arguments.
+Loguru silently DISCARDS keyword arguments passed at the call site.
+
+WRONG (structlog-style — Antigravity's default):
+    logger.error("fetch_failed", asset=asset, status=status)
+    # At runtime, this logs only "fetch_failed" with no context.
+
+CORRECT:
+    logger.error("fetch_failed | asset={} | status={}", asset, status)
+</ABSOLUTE_RULE>
+
+- Use `logger.error()` for failures that degrade functionality
+- Use `logger.warning()` for recoverable degradations
+- Use `logger.info()` for normal lifecycle events
+- Use `logger.debug()` for diagnostic detail
+- Use `logger.exception()` inside `except Exception:` to include traceback
+- Always use structured format: `"message | key={} | key={}"` — not f-strings
+  (f-strings evaluate eagerly even when the log level is disabled)
+- Stdlib `logging` is banned. Loguru only.
+
+# Testing Standards
+
+## Definition of Done
+
+A module is NOT complete until BOTH of these are true:
+1. Every `calculate_` function has a unit test covering expected output,
+   a known edge case, and a known failure case.
+2. The module has a smoke test confirming it starts, registers with the
+   central registry, and returns a healthy status.
+
+## Test Location
+
+Tests live INSIDE the feature folder alongside the code they test.
+`providers/coinalyze/test_coinalyze.py` — NOT in a top-level `tests/` dir.
+
+## Test Floor Contract
+
+The pytest floor (total passing test count) must never decrease within a
+session. Before starting work:
+
+```bash
+pytest --tb=no -q 2>&1 | tail -5
+```
+
+Record the number. Any change that reduces it must be reverted unless
+the test itself was wrong and the replacement test covers the same
+behaviour. Do not hardcode a specific floor value in session prompts —
+read the current count at session start.
+
+## Test Pattern
+
+```python
+import pytest
+from unittest.mock import AsyncMock
+
+class TestCalculateFundingSignal:
+    """Tests for calculate_funding_signal."""
+
+    def test_positive_funding_returns_bearish_bias(self) -> None:
+        """High positive funding rate signals overleveraged longs."""
+        result = calculate_funding_signal(funding_rate=0.05, basis=0.02)
+        assert result.direction == "bearish"
+        assert result.confidence > 0.6
+
+    def test_zero_funding_returns_neutral(self) -> None:
+        """Neutral funding produces no directional signal."""
+        result = calculate_funding_signal(funding_rate=0.0, basis=0.0)
+        assert result.direction == "neutral"
+
+    def test_missing_data_returns_zero_score(self) -> None:
+        """Missing input gracefully produces zero score."""
+        result = calculate_funding_signal(funding_rate=None, basis=None)
+        assert result.score == 0.0
+        assert "DEGRADED" in result.explanations[0]
+```
+
+<CONSEQUENCE>
+If you declare a module "complete" without both test types passing,
+the next session will waste time debugging failures that tests would
+have caught immediately. Write the tests. Run them. Confirm green.
+
+If you use Loguru with keyword arguments, every production log line
+becomes a bare event name with no diagnostic context. You will not be
+able to debug ANY failure in post-mortem. This is silent data loss.
+</CONSEQUENCE>

@@ -1,0 +1,72 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-8.4.1, pluggy-1.6.0
+benchmark: 5.1.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/bi/Desktop/Engine 8/ATLAS
+configfile: pyproject.toml
+plugins: mock-3.14.1, json-report-1.5.0, anyio-4.12.1, asyncio-1.1.0, sugar-1.1.1, langsmith-0.6.0, hydra-core-1.3.2, Faker-37.5.3, respx-0.22.0, clarity-1.0.1, metadata-3.1.1, timeout-2.4.0, benchmark-5.1.0, hypothesis-6.141.0, cov-6.2.1, repeat-0.9.4, xdist-3.7.0, html-4.1.1
+asyncio: mode=auto, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collected 3 items
+
+atlas/core/test_multi_asset_runner.py EE.                                [100%]
+
+==================================== ERRORS ====================================
+________________ ERROR at setup of test_apply_portfolio_filter _________________
+
+    @pytest.fixture
+    def sample_signals() -> list[SignalOutput]:
+        base_time = datetime.now(timezone.utc)
+>       sig1 = SignalOutput(
+            signal_id="sig-alt-1",
+            timestamp=base_time,
+            decision=SignalDecision.BUY,
+            asset="ADA/USDT",
+            action=ActionBlock(
+                side="buy",
+                order_type="limit",
+                price=1,
+                stop_loss=0.9,
+                take_profit=1.2,
+            ),
+            expires_at=base_time,
+            score=60,
+            confidence=0.6,
+            category_scores=CategoryScores(total=60, correlation=60),
+            telemetry=TelemetryEvent(cycle_id="test", cycle_latency_ms=10.0, agent_count=1),
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for SignalOutput
+E         Value error, expires_at must be strictly after timestamp [type=value_error, input_value={'signal_id': 'sig-alt-1'...datetime.timezone.utc))}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.13/v/value_error
+
+atlas/core/test_multi_asset_runner.py:27: ValidationError
+______ ERROR at setup of test_apply_portfolio_filter_different_decisions _______
+
+    @pytest.fixture
+    def sample_signals() -> list[SignalOutput]:
+        base_time = datetime.now(timezone.utc)
+>       sig1 = SignalOutput(
+            signal_id="sig-alt-1",
+            timestamp=base_time,
+            decision=SignalDecision.BUY,
+            asset="ADA/USDT",
+            action=ActionBlock(
+                side="buy",
+                order_type="limit",
+                price=1,
+                stop_loss=0.9,
+                take_profit=1.2,
+            ),
+            expires_at=base_time,
+            score=60,
+            confidence=0.6,
+            category_scores=CategoryScores(total=60, correlation=60),
+            telemetry=TelemetryEvent(cycle_id="test", cycle_latency_ms=10.0, agent_count=1),
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for SignalOutput
+E         Value error, expires_at must be strictly after timestamp [type=value_error, input_value={'signal_id': 'sig-alt-1'...datetime.timezone.utc))}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.13/v/value_error
+
+atlas/core/test_multi_asset_runner.py:27: ValidationError
+=========================== short test summary info ============================
+ERROR atlas/core/test_multi_asset_runner.py::test_apply_portfolio_filter - py...
+ERROR atlas/core/test_multi_asset_runner.py::test_apply_portfolio_filter_different_decisions
+========================= 1 passed, 2 errors in 0.37s ==========================

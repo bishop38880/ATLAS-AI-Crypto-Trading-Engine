@@ -1,0 +1,43 @@
+{
+  "mcpServers": {
+    "polaris-sequential-thinking": {
+      "command": "python",
+      "args": ["mcp_servers/sequential_thinking/server.py"],
+      "description": "Scratchpad reasoning tool for POLARIS confluence scoring"
+    },
+    "polaris-decision-log": {
+      "command": "python",
+      "args": ["mcp_servers/decision_log/server.py"],
+      "env": {
+        "DATABASE_URL": "${DATABASE_URL}"
+      },
+      "description": "Read-only query tools over POLARIS decision history and trade outcomes"
+    },
+    "polaris-fetch": {
+      "command": "python",
+      "args": ["mcp_servers/fetch/server.py"],
+      "description": "Lightweight HTTP GET tool for structured public APIs. Use instead of Brave for JSON endpoints."
+    },
+    "polaris-timescaledb": {
+      "command": "python",
+      "args": ["mcp_servers/timescaledb/server.py"],
+      "env": {
+        "DATABASE_URL": "${DATABASE_URL}"
+      },
+      "description": "Read-only time-series analytical queries over POLARIS market data"
+    },
+    "polaris-predict-macro": {
+      "command": "python",
+      "args": ["mcp_servers/predict_macro/server.py"],
+      "env": {
+        "FRED_API_KEY": "${FRED_API_KEY}",
+        "ETH_RPC_URL": "${ETH_RPC_URL}"
+      },
+      "description": "MacroCrossMarketAgent - Fiat Gravity Engine: FRED TradFi + USDT/USDC mint-burn harmonisation"
+    },
+    "coinpaprika": {
+      "url": "https://mcp.coinpaprika.com/sse",
+      "description": "Hosted CoinPaprika crypto market data (prices, OHLCV, search). Dev/research only — not an approved ATLAS production provider."
+    }
+  }
+}

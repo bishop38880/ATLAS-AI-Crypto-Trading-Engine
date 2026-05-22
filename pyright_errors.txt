@@ -1,0 +1,34 @@
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/agents/news_macro/news_macro_agent.py:237:23 - error: Argument of type "type[Any]" cannot be assigned to parameter "type" of type "type[T@decode_json]" in function "decode_json" (reportArgumentType)
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/api/_channel_reads.py:56:17 - error: No parameter named "lastPingMs" (reportCallIssue)
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/core/anomaly_detector.py:195:19 - error: "int" is not awaitable
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/core/anomaly_detector.py:200:23 - error: "str" is not awaitable
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/core/anomaly_detector.py:200:57 - error: Argument of type "bytes" cannot be assigned to parameter "value" of type "str" in function "lset"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/core/anomaly_detector.py:243:21 - error: "list[Unknown]" is not awaitable
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/core/test_multi_asset_runner.py:39:33 - error: Argument of type "float" cannot be assigned to parameter "confidence" of type "Decimal" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/core/test_state.py:67:20 - error: Argument of type "float" cannot be assigned to parameter "confidence" of type "Decimal" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/core/test_state.py:144:24 - error: Argument of type "float" cannot be assigned to parameter "confidence" of type "Decimal" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/ml/confidence_gate.py:143:34 - error: Argument of type "float" cannot be assigned to parameter "conviction_tightness" of type "Decimal" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/ml/confidence_gate.py:147:28 - error: Argument of type "float" cannot be assigned to parameter "agent_coverage" of type "Decimal" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/ml/confidence_gate.py:151:30 - error: Argument of type "float" cannot be assigned to parameter "gate_cleanliness" of type "Decimal" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/ml/confidence_gate.py:155:30 - error: Argument of type "float" cannot be assigned to parameter "regime_stability" of type "Decimal" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/ml/confidence_gate.py:158:32 - error: Argument of type "float" cannot be assigned to parameter "provider_agreement" of type "Decimal" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/ml/rlvr/test_shadow_runner.py:50:35 - error: Argument of type "Literal['dummy_url']" cannot be assigned to parameter "asyncpg_pool" of type "Pool" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/ml/rlvr/test_shadow_runner.py:68:35 - error: Argument of type "Literal['dummy_url']" cannot be assigned to parameter "asyncpg_pool" of type "Pool" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/ml/test_outcome_evaluator.py:23:41 - error: Argument of type "Literal['postgresql://fake']" cannot be assigned to parameter "asyncpg_pool" of type "Pool" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/models/signal.py:778:20 - error: Argument of type "float" cannot be assigned to parameter "confidence" of type "Decimal" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/models/test_signal_intelligence_extensions.py:123:20 - error: Argument of type "float" cannot be assigned to parameter "confidence" of type "Decimal" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/orchestrator/test_scorer.py:457:13 - error: Argument missing for parameter "max_score" (reportCallIssue)
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/orchestrator/test_scorer.py:468:13 - error: Argument missing for parameter "max_score" (reportCallIssue)
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/pipeline/exit_scorer.py:213:50 - error: Argument of type "object" cannot be assigned to parameter "sweep_dir" of type "str" in function "_is_opposing_sweep"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/pipeline/test_cascade_executor.py:45:20 - error: Argument of type "float" cannot be assigned to parameter "confidence" of type "Decimal" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/pipeline/test_cascade_executor.py:54:29 - error: Argument of type "float" cannot be assigned to parameter "pipeline_confidence" of type "Decimal" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/pipeline/test_llm_router.py:95:67 - error: Expression of type "None" cannot be assigned to parameter of type "list[str]"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/pipeline/test_llm_router.py:106:20 - error: Argument of type "float" cannot be assigned to parameter "confidence" of type "Decimal" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/pipeline/test_llm_router.py:233:53 - error: Argument of type "dict[str, bool]" cannot be assigned to parameter "provider_snapshots" of type "dict[str, dict[Unknown, Unknown]]" in function "route_and_call"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/pipeline/test_output_processor.py:95:16 - error: Argument of type "dict[str, Unknown] | None" cannot be assigned to parameter "action" of type "ActionBlock | None" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/pipeline/test_query_classifier.py:122:22 - error: Argument missing for parameter "retrieval_depth" (reportCallIssue)
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/pipeline/test_reflection.py:83:20 - error: Argument of type "float" cannot be assigned to parameter "confidence" of type "Decimal" in function "__init__"
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/pipeline/test_reflection.py:90:32 - error: "Decimal" is not defined (reportUndefinedVariable)
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/provenance/writer.py:125:69 - error: "..." is allowed only as the second of two arguments (reportInvalidTypeForm)
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/provenance/writer.py:127:27 - error: "..." is allowed only as the second of two arguments (reportInvalidTypeForm)
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/provenance/writer.py:132:26 - error: Argument of type "tuple[str, datetime, str, str, str, str, int, int, str, float, str, str, float]" cannot be assigned to parameter "object" of type "tuple[...]" in function "append"

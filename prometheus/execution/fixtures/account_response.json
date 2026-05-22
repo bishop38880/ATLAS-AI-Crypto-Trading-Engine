@@ -1,0 +1,14 @@
+{
+  "code": "00000",
+  "msg": "success",
+  "requestTime": 1700000000000,
+  "data": [
+    {
+      "marginCoin": "USDT",
+      "available": "8500.00",
+      "accountEquity": "10000.00",
+      "unrealizedPL": "150.00",
+      "locked": "1500.00"
+    }
+  ]
+}

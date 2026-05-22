@@ -1,0 +1,25 @@
+[project]
+name = "multichain-rpc-mcp"
+version = "1.0.0"
+description = "Multi-Chain RPC MCPs — Etherscan GoG & Bitcoin Core GoG for ATLAS OnChainIntelligenceAgent cross-chain contagion tracking"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.0",
+    "httpx[http2]",
+    "msgspec",
+    "pydantic>=2.0",
+    "python-dotenv",
+    "redis>=5.0",
+    "loguru",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "pyright",
+]
+
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"

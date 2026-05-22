@@ -1,0 +1,1 @@
+"""Hourly monitoring provider sources."""

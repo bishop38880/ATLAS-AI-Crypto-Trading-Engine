@@ -1,0 +1,27 @@
+[
+  {
+    "name": "funding_rate_monitor",
+    "category": "funding",
+    "module": "atlas.agents.funding.funding_agent",
+    "class": "FundingAgent",
+    "weight": 0.06198,
+    "enabled": true
+  },
+  {
+    "name": "news_macro_agent",
+    "category": "news_macro",
+    "module": "atlas.agents.news_macro.news_macro_agent",
+    "class": "NewsMacroAgent",
+    "weight": 0.0341,
+    "enabled": true
+  },
+  {
+    "name": "derivatives_agent",
+    "category": "derivatives",
+    "module": "atlas.agents.derivatives.derivatives_agent",
+    "class": "DerivativesAgent",
+    "weight": 0.2066,
+    "max_points": 45,
+    "enabled": true
+  }
+]

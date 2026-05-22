@@ -1,0 +1,98 @@
+........................................................................ [  7%]
+........................................................................ [ 14%]
+........................................................................ [ 21%]
+........................................................................ [ 28%]
+........................................................................ [ 35%]
+.............................FF......................................... [ 42%]
+........................................................................ [ 49%]
+........................................................................ [ 57%]
+........................................................................ [ 64%]
+........................................................................ [ 71%]
+........................................................................ [ 78%]
+........................................................................ [ 85%]
+........................................................................ [ 92%]
+........................................................................ [ 99%]
+.                                                                        [100%]
+=================================== FAILURES ===================================
+_________________ test_scorer_uses_meta_learner_when_available _________________
+
+    @pytest.mark.asyncio
+    
+    @pytest.mark.asyncio
+    
+    @pytest.mark.asyncio
+    
+    @pytest.mark.asyncio
+    
+    @pytest.mark.asyncio
+    
+    @pytest.mark.asyncio
+    async def test_scorer_uses_meta_learner_when_available() -> None:
+        scorer = _make_scorer()
+        mock_learner = MagicMock()
+        mock_learner.model = MagicMock()
+        mock_learner.predict.return_value = 0.85
+>       scorer.meta_learner = mock_learner
+E       TypeError: _make_agent() missing 1 required positional argument: 'max_score'
+
+atlas/orchestrator/test_scorer.py:448: TypeError
+____________ test_scorer_falls_back_when_meta_learner_model_is_none ____________
+
+        assert result.score == 85
+    
+    @pytest.mark.asyncio
+    async def test_scorer_falls_back_when_meta_learner_model_is_none() -> None:
+        scorer = _make_scorer()
+        mock_learner = MagicMock()
+        mock_learner.model = None
+>       scorer.meta_learner = mock_learner
+E       TypeError: _make_agent() missing 1 required positional argument: 'max_score'
+
+atlas/orchestrator/test_scorer.py:459: TypeError
+=============================== warnings summary ===============================
+../../../.local/lib/python3.10/site-packages/torch_geometric/llm/utils/backend_utils.py:26
+  /home/bi/.local/lib/python3.10/site-packages/torch_geometric/llm/utils/backend_utils.py:26: DeprecationWarning: `torch_geometric.distributed` has been deprecated since 2.7.0 and will no longer be maintained. For distributed training, refer to our tutorials on distributed training at https://pytorch-geometric.readthedocs.io/en/latest/tutorial/distributed.html or cuGraph examples at https://github.com/rapidsai/cugraph-gnn/tree/main/python/cugraph-pyg/cugraph_pyg/examples
+    from torch_geometric.distributed import (
+
+atlas/agents/gnn/test_agent.py::TestShadowScorerPersistence::test_shadow_scorer_writes_to_db
+  /home/bi/.local/lib/python3.10/site-packages/pywt/_multilevel.py:43: UserWarning: Level value of 3 is too high: all coefficients will experience boundary effects.
+    warnings.warn(
+
+atlas/core/test_mcp_client.py::test_mcp_client_lifecycle
+atlas/core/test_mcp_client.py::test_call_tool_waits_for_recovery
+atlas/core/test_mcp_client.py::test_graceful_shutdown
+  /home/bi/.local/lib/python3.10/site-packages/lancedb/__init__.py:294: UserWarning: lance is not fork-safe. If you are using multiprocessing, use spawn instead.
+    warnings.warn(
+
+atlas/core/test_validation_gate.py::test_full_pipeline_anomaly
+tests/core/test_ks_drift.py::test_ks_same_distribution_no_drift
+tests/core/test_ks_drift.py::test_ks_detects_mean_shift
+tests/core/test_ks_drift.py::test_slow_drift_triggers_ks_before_mad
+  /home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:263: DeprecationWarning: In future, it will be an error for 'np.bool_' scalars to be interpreted as an index
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+
+atlas/ml/test_outcome_evaluator.py::test_outcome_evaluator_agents
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/ml/test_outcome_evaluator.py:17: DeprecationWarning: Call to deprecated close. (Use aclose() instead) -- Deprecated since version 5.0.0.
+    await client.close()
+
+atlas/ml/test_thompson_sampling.py::test_initialization
+atlas/ml/test_thompson_sampling.py::test_uniform_prior
+atlas/ml/test_thompson_sampling.py::test_accuracy_weighting
+atlas/ml/test_thompson_sampling.py::test_decay_mechanics
+atlas/ml/test_thompson_sampling.py::test_concurrent_updates
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/ml/test_thompson_sampling.py:17: DeprecationWarning: Call to deprecated close. (Use aclose() instead) -- Deprecated since version 5.0.0.
+    await client.close()
+
+atlas/pipeline/test_orchestrator.py::test_all_agents_respond_within_budget
+atlas/pipeline/test_orchestrator.py::test_agent_timeout_zero_scored
+atlas/pipeline/test_orchestrator.py::test_risk_no_veto_proceeds
+  /home/bi/Desktop/Engine 8/ATLAS/atlas/agents/risk/portfolio_optimisation_agent.py:46: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    avg_correlation = Decimal(corr_raw.decode("utf-8")) if corr_raw else Decimal("0.0")
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED atlas/orchestrator/test_scorer.py::test_scorer_uses_meta_learner_when_available
+FAILED atlas/orchestrator/test_scorer.py::test_scorer_falls_back_when_meta_learner_model_is_none
+2 failed, 1007 passed, 18 warnings in 38.60s

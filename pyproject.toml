@@ -1,0 +1,67 @@
+[project]
+name = "atlas"
+version = "0.1.0"
+description = "POLARIS Intelligence Engine"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0",
+    "fastapi",
+    "httpx[http2]",
+    "msgspec",
+    "loguru",
+    "redis>=5.0",
+    "fakeredis>=2.23",
+    "pybreaker",
+    "tenacity",
+    "polars",
+    "duckdb>=1.0",
+    "asyncpg>=0.29",
+    "scikit-learn",
+    "qdrant-client>=1.0",
+    "lancedb>=0.20",
+    "hmmlearn>=0.3",
+    "langfuse>=3.0",
+    "torch>=2.2",
+    "scipy>=1.12",
+    "pywavelets>=1.4",
+    "aioredis>=2.0",
+    "websockets>=12.0",
+    "mcp>=1.0",
+    "ccxt>=4.0",
+    "web3[async]>=7.0",
+    "eth-abi>=5.0",
+    "rich>=13.0",
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+gnn = [
+    "torch>=2.2",
+    "torch-geometric>=2.5",
+    "torch-scatter",
+    "torch-sparse",
+    "scikit-learn>=1.4",
+]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-mock",
+    "pyright",
+    "h2",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["."]
+pythonpath = ["."]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-p no:randomly"
+
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["atlas*", "backtesting*"]

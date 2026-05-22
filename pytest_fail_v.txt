@@ -1,0 +1,177 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-9.0.3, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+Using --randomly-seed=631593371
+metadata: {'Python': '3.10.12', 'Platform': 'Linux-6.17.9-76061709-generic-x86_64-with-glibc2.35', 'Packages': {'pytest': '9.0.3', 'pluggy': '1.6.0'}, 'Plugins': {'mock': '3.14.1', 'json-report': '1.5.0', 'anyio': '4.12.1', 'asyncio': '1.1.0', 'sugar': '1.1.1', 'randomly': '4.0.1', 'langsmith': '0.6.0', 'httpx': '0.36.2', 'hydra-core': '1.3.2', 'Faker': '37.5.3', 'respx': '0.22.0', 'clarity': '1.0.1', 'metadata': '3.1.1', 'timeout': '2.4.0', 'benchmark': '5.1.0', 'hypothesis': '6.141.0', 'cov': '6.2.1', 'repeat': '0.9.4', 'xdist': '3.7.0', 'html': '4.1.1'}}
+benchmark: 5.1.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'default'
+rootdir: /home/bi/Desktop/Engine 8/ATLAS
+configfile: pyproject.toml
+plugins: mock-3.14.1, json-report-1.5.0, anyio-4.12.1, asyncio-1.1.0, sugar-1.1.1, randomly-4.0.1, langsmith-0.6.0, httpx-0.36.2, hydra-core-1.3.2, Faker-37.5.3, respx-0.22.0, clarity-1.0.1, metadata-3.1.1, timeout-2.4.0, benchmark-5.1.0, hypothesis-6.141.0, cov-6.2.1, repeat-0.9.4, xdist-3.7.0, html-4.1.1
+asyncio: mode=auto, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collecting ... collected 10 items
+
+tests/backtesting/test_agent_simulator.py::test_simulator_full_run FAILED [ 10%]
+tests/backtesting/test_agent_simulator.py::test_market_buy_partial_fill ERROR [ 20%]
+tests/backtesting/test_agent_simulator.py::test_market_buy_partial_fill ERROR [ 20%]
+tests/backtesting/test_agent_simulator.py::test_simulator_determinism ERROR [ 30%]
+tests/backtesting/test_agent_simulator.py::test_simulator_determinism ERROR [ 30%]
+tests/backtesting/test_agent_simulator.py::test_market_buy_full_fill PASSED [ 40%]
+tests/backtesting/test_agent_simulator.py::test_market_buy_walking_book FAILED [ 50%]
+tests/backtesting/test_agent_simulator.py::test_book_mid_price PASSED    [ 60%]
+tests/backtesting/test_agent_simulator.py::test_synthetic_data_determinism FAILED [ 70%]
+tests/backtesting/test_agent_simulator.py::test_limit_order_placement PASSED [ 80%]
+tests/backtesting/test_agent_simulator.py::test_replay_engine_iteration PASSED [ 90%]
+tests/backtesting/test_agent_simulator.py::test_limit_crossing PASSED    [100%]
+
+==================================== ERRORS ====================================
+________________ ERROR at setup of test_market_buy_partial_fill ________________
+
+item = <Function test_market_buy_partial_fill>
+
+    def pytest_runtest_setup(item: Item) -> None:
+        if item.config.getoption("randomly_reset_seed"):
+>           _reseed(item.config, (_crc32(item.nodeid) - 1) % 2**32)
+
+/home/bi/.local/lib/python3.10/site-packages/pytest_randomly/__init__.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/bi/.local/lib/python3.10/site-packages/pytest_randomly/__init__.py:168: in _reseed
+    reseed(seed)
+/home/bi/.local/lib/python3.10/site-packages/thinc/util.py:101: in fix_random_seed
+    numpy.random.seed(seed)
+numpy/random/mtrand.pyx:4806: in numpy.random.mtrand.seed
+    ???
+numpy/random/mtrand.pyx:250: in numpy.random.mtrand.RandomState.seed
+    ???
+_mt19937.pyx:168: in numpy.random._mt19937.MT19937._legacy_seeding
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   ValueError: Seed must be between 0 and 2**32 - 1
+
+_mt19937.pyx:182: ValueError
+______________ ERROR at teardown of test_market_buy_partial_fill _______________
+
+item = <Function test_market_buy_partial_fill>
+
+    def pytest_runtest_teardown(item: Item) -> None:
+        if item.config.getoption("randomly_reset_seed"):
+>           _reseed(item.config, (_crc32(item.nodeid) + 1) % 2**32)
+
+/home/bi/.local/lib/python3.10/site-packages/pytest_randomly/__init__.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/bi/.local/lib/python3.10/site-packages/pytest_randomly/__init__.py:168: in _reseed
+    reseed(seed)
+/home/bi/.local/lib/python3.10/site-packages/thinc/util.py:101: in fix_random_seed
+    numpy.random.seed(seed)
+numpy/random/mtrand.pyx:4806: in numpy.random.mtrand.seed
+    ???
+numpy/random/mtrand.pyx:250: in numpy.random.mtrand.RandomState.seed
+    ???
+_mt19937.pyx:168: in numpy.random._mt19937.MT19937._legacy_seeding
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   ValueError: Seed must be between 0 and 2**32 - 1
+
+_mt19937.pyx:182: ValueError
+_________________ ERROR at setup of test_simulator_determinism _________________
+
+item = <Function test_simulator_determinism>
+
+    def pytest_runtest_setup(item: Item) -> None:
+        if item.config.getoption("randomly_reset_seed"):
+>           _reseed(item.config, (_crc32(item.nodeid) - 1) % 2**32)
+
+/home/bi/.local/lib/python3.10/site-packages/pytest_randomly/__init__.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/bi/.local/lib/python3.10/site-packages/pytest_randomly/__init__.py:168: in _reseed
+    reseed(seed)
+/home/bi/.local/lib/python3.10/site-packages/thinc/util.py:101: in fix_random_seed
+    numpy.random.seed(seed)
+numpy/random/mtrand.pyx:4806: in numpy.random.mtrand.seed
+    ???
+numpy/random/mtrand.pyx:250: in numpy.random.mtrand.RandomState.seed
+    ???
+_mt19937.pyx:168: in numpy.random._mt19937.MT19937._legacy_seeding
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   ValueError: Seed must be between 0 and 2**32 - 1
+
+_mt19937.pyx:182: ValueError
+_______________ ERROR at teardown of test_simulator_determinism ________________
+
+item = <Function test_simulator_determinism>
+
+    def pytest_runtest_teardown(item: Item) -> None:
+        if item.config.getoption("randomly_reset_seed"):
+>           _reseed(item.config, (_crc32(item.nodeid) + 1) % 2**32)
+
+/home/bi/.local/lib/python3.10/site-packages/pytest_randomly/__init__.py:191: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/bi/.local/lib/python3.10/site-packages/pytest_randomly/__init__.py:168: in _reseed
+    reseed(seed)
+/home/bi/.local/lib/python3.10/site-packages/thinc/util.py:101: in fix_random_seed
+    numpy.random.seed(seed)
+numpy/random/mtrand.pyx:4806: in numpy.random.mtrand.seed
+    ???
+numpy/random/mtrand.pyx:250: in numpy.random.mtrand.RandomState.seed
+    ???
+_mt19937.pyx:168: in numpy.random._mt19937.MT19937._legacy_seeding
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   ValueError: Seed must be between 0 and 2**32 - 1
+
+_mt19937.pyx:182: ValueError
+=================================== FAILURES ===================================
+___________________________ test_simulator_full_run ____________________________
+
+    def test_simulator_full_run() -> None:
+        """Simulator should execute all agent orders and produce a result."""
+>       snapshots = generate_book_snapshots(
+            symbol="BTCUSDT", seed=123, duration_seconds=60,
+        )
+E       TypeError: generate_book_snapshots() missing 1 required positional argument: 'base_price'
+
+tests/backtesting/test_agent_simulator.py:134: TypeError
+_________________________ test_market_buy_walking_book _________________________
+
+sample_snapshot = OrderBookSnapshot(symbol='BTCUSDT', timestamp=datetime.datetime(2025, 1, 1, 12, 0, tzinfo=datetime.timezone.utc), bids...')), PriceLevel(price=Decimal('50020'), size=Decimal('2.0')), PriceLevel(price=Decimal('50030'), size=Decimal('5.0'))])
+
+    def test_market_buy_walking_book(sample_snapshot: OrderBookSnapshot) -> None:
+        """Market buy should walk multiple levels if size exceeds level 1."""
+        book = MutableOrderBook(sample_snapshot)
+        # Buy 1.5 BTC. Asks: [50010, 1.0], [50020, 2.0].
+        # Should fill 1.0 at 50010 and 0.5 at 50020.
+        # Total cost = 50010 + 25010 = 75020.
+        # Avg price = 75020 / 1.5 = 50013.33333333...
+        fill = book.consume_market_buy(size=Decimal("1.5"))
+        assert fill.filled_size == Decimal("1.5")
+>       assert fill.levels_consumed == 2
+E       AssertionError: assert 1 == 2
+E        +  where 1 = FillResult(order_id='', filled_size=Decimal('1.5'), avg_fill_price=Decimal('50013.33333333'), slippage_bps=Decimal('2.67'), is_partial=False, remaining_size=Decimal('0.0'), levels_consumed=1, total_cost=Decimal('75020.0')).levels_consumed
+
+tests/backtesting/test_agent_simulator.py:89: AssertionError
+_______________________ test_synthetic_data_determinism ________________________
+
+    def test_synthetic_data_determinism() -> None:
+        """Identical seeds must produce identical snapshots."""
+>       s1 = generate_book_snapshots(symbol="BTCUSDT", seed=42, duration_seconds=10)
+E       TypeError: generate_book_snapshots() missing 1 required positional argument: 'base_price'
+
+tests/backtesting/test_agent_simulator.py:112: TypeError
+=========================== short test summary info ============================
+FAILED tests/backtesting/test_agent_simulator.py::test_simulator_full_run - T...
+FAILED tests/backtesting/test_agent_simulator.py::test_market_buy_walking_book
+FAILED tests/backtesting/test_agent_simulator.py::test_synthetic_data_determinism
+ERROR tests/backtesting/test_agent_simulator.py::test_market_buy_partial_fill
+ERROR tests/backtesting/test_agent_simulator.py::test_market_buy_partial_fill
+ERROR tests/backtesting/test_agent_simulator.py::test_simulator_determinism
+ERROR tests/backtesting/test_agent_simulator.py::test_simulator_determinism
+==================== 3 failed, 5 passed, 4 errors in 1.73s =====================

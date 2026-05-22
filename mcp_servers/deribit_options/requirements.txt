@@ -1,0 +1,9 @@
+mcp>=1.0
+websockets>=12.0
+httpx[http2]
+msgspec
+loguru
+pydantic>=2.0
+pydantic-settings>=2.0
+numpy>=1.26
+scipy>=1.12

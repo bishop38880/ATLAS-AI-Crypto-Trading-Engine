@@ -1,0 +1,1324 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-8.4.1, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+metadata: {'Python': '3.10.12', 'Platform': 'Linux-6.17.9-76061709-generic-x86_64-with-glibc2.35', 'Packages': {'pytest': '8.4.1', 'pluggy': '1.6.0'}, 'Plugins': {'mock': '3.14.1', 'json-report': '1.5.0', 'anyio': '4.12.1', 'asyncio': '1.1.0', 'sugar': '1.1.1', 'langsmith': '0.6.0', 'hydra-core': '1.3.2', 'Faker': '37.5.3', 'respx': '0.22.0', 'clarity': '1.0.1', 'metadata': '3.1.1', 'timeout': '2.4.0', 'benchmark': '5.1.0', 'hypothesis': '6.141.0', 'cov': '6.2.1', 'repeat': '0.9.4', 'xdist': '3.7.0', 'html': '4.1.1'}}
+benchmark: 5.1.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'default'
+rootdir: /home/bi/Desktop/Engine 8/ATLAS
+configfile: pyproject.toml
+plugins: mock-3.14.1, json-report-1.5.0, anyio-4.12.1, asyncio-1.1.0, sugar-1.1.1, langsmith-0.6.0, hydra-core-1.3.2, Faker-37.5.3, respx-0.22.0, clarity-1.0.1, metadata-3.1.1, timeout-2.4.0, benchmark-5.1.0, hypothesis-6.141.0, cov-6.2.1, repeat-0.9.4, xdist-3.7.0, html-4.1.1
+asyncio: mode=auto, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collecting ... collected 30 items
+
+atlas/agents/funding/test_funding_agent.py::test_funding_extreme_positive_zscore PASSED [  3%]
+atlas/agents/funding/test_funding_agent.py::test_funding_extreme_negative_zscore PASSED [  6%]
+atlas/agents/funding/test_funding_agent.py::test_funding_basis_contango PASSED [ 10%]
+atlas/agents/funding/test_funding_agent.py::test_funding_oi_divergence_bullish PASSED [ 13%]
+atlas/agents/funding/test_funding_agent.py::test_funding_decimal_internals PASSED [ 16%]
+atlas/agents/news_macro/test_news_macro_agent.py::test_news_macro_high_impact_event PASSED [ 20%]
+atlas/agents/news_macro/test_news_macro_agent.py::test_news_macro_no_event PASSED [ 23%]
+atlas/agents/news_macro/test_news_macro_agent.py::test_news_macro_breaking_negative_news PASSED [ 26%]
+atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_zero_agents_produces_zero_score PASSED [ 30%]
+atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_full_score_normalises_to_100 FAILED [ 33%]
+atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_partial_score_normalises_correctly FAILED [ 36%]
+atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_category_weights_sum_to_one PASSED [ 40%]
+atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_risk_filtered_out_of_weighted_sum FAILED [ 43%]
+atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_conviction_suppression_applied_and_floored FAILED [ 46%]
+atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_high_score_bullish_is_strong_buy FAILED [ 50%]
+atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_bearish_consensus_produces_sell FAILED [ 53%]
+atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_risk_veto_overrides_high_score FAILED [ 56%]
+atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_default_30m_ttl FAILED [ 60%]
+atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_cascade_ttl_override FAILED [ 63%]
+atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_1h_timeframe_ttl FAILED [ 66%]
+atlas/orchestrator/test_scorer.py::TestSignalIdentity::test_signal_id_is_generated FAILED [ 70%]
+atlas/orchestrator/test_scorer.py::TestSignalIdentity::test_asset_and_timeframe_propagated FAILED [ 73%]
+atlas/orchestrator/test_scorer.py::TestReasoningAggregation::test_reasoning_combines_explanations FAILED [ 76%]
+atlas/orchestrator/test_scorer.py::TestReasoningAggregation::test_convergences_collected FAILED [ 80%]
+atlas/orchestrator/test_scorer.py::TestReasoningAggregation::test_risks_collected FAILED [ 83%]
+atlas/orchestrator/test_scorer.py::TestCascadeLinkage::test_cascade_fields_propagated FAILED [ 86%]
+atlas/orchestrator/test_scorer.py::TestCascadeLinkage::test_non_cascade_defaults FAILED [ 90%]
+atlas/orchestrator/test_scorer.py::TestActionBlockNoAmount::test_action_has_no_amount FAILED [ 93%]
+atlas/orchestrator/test_scorer.py::test_scorer_uses_meta_learner_when_available FAILED [ 96%]
+atlas/orchestrator/test_scorer.py::test_scorer_falls_back_when_meta_learner_model_is_none FAILED [100%]
+
+=================================== FAILURES ===================================
+____________ TestScoreAggregation.test_full_score_normalises_to_100 ____________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestScoreAggregation object at 0x774cb72dbe80>
+
+    @pytest.mark.asyncio
+    
+    async def test_full_score_normalises_to_100(self) -> None:
+        """220 raw points → 100 normalised."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent("derivatives", 70, 70),
+            _make_agent("technical", 50, 50),
+            _make_agent("onchain", 40, 40),
+            _make_agent("sentiment", 30, 30),
+            _make_agent("context", 30, 30),
+        ]
+>       signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:121: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=70, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:23.610 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=f2e462d2-b2b3-4345-91e3-11a8afd03c82 | asset=BTCUSDT
+_________ TestScoreAggregation.test_partial_score_normalises_correctly _________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestScoreAggregation object at 0x774cb72f8130>
+
+    @pytest.mark.asyncio
+    
+    async def test_partial_score_normalises_correctly(self) -> None:
+        """110 raw points → 50 normalised (110/220 * 100)."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent("derivatives", 50, 70),
+            _make_agent("technical", 30, 50),
+            _make_agent("onchain", 20, 40),
+            _make_agent("sentiment", 10, 30),
+        ]
+>       signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:135: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=50, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:23.747 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=8acad7d4-bb78-4b16-bc84-7b10e781d4f6 | asset=BTCUSDT
+_________ TestScoreAggregation.test_risk_filtered_out_of_weighted_sum __________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestScoreAggregation object at 0x774cb72db7c0>
+
+    @pytest.mark.asyncio
+    async def test_risk_filtered_out_of_weighted_sum(self) -> None:
+        """Risk agent results do not contribute to weighted sum."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent("technical", 220, 220),  # Weight 0.25 -> 55 points
+            _make_agent("risk", 220, 220),       # Should be ignored completely
+        ]
+>       signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='technical', score=220, max_score=220, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:23.772 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=68e3ba40-ca2c-4908-b8fe-3df120f5d12b | asset=BTCUSDT
+_____ TestScoreAggregation.test_conviction_suppression_applied_and_floored _____
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestScoreAggregation object at 0x774cb72f8190>
+
+    @pytest.mark.asyncio
+    async def test_conviction_suppression_applied_and_floored(self) -> None:
+        """Conviction suppression reduces score, floored at 0."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent("technical", 110, 220), # Gives some score
+            _make_agent_with_sub_signals(
+                "news_macro_agent", 0, {"conviction_suppression": -20}
+            )
+        ]
+        # Base score calculation:
+        # Technical score = 110. Weight = 0.25 -> 27.5 points
+        # Normalised base score = 27.5 / 220 * 100 = 12.5 -> 13
+        # Suppression = -20
+        # Final = max(0, 13 - 20) = 0
+>       signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:172: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='technical', score=110, max_score=220, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:23.795 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=76ab3b69-a2b8-461e-8b3c-edbd18a27e2b | asset=BTCUSDT
+__________ TestDecisionMapping.test_high_score_bullish_is_strong_buy ___________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestDecisionMapping object at 0x774cb72f8610>
+
+    @pytest.mark.asyncio
+    
+    async def test_high_score_bullish_is_strong_buy(self) -> None:
+        """High bullish score → Strong Buy with ActionBlock."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent("derivatives", 60, 70, SignalDirection.BULLISH),
+            _make_agent("technical", 45, 50, SignalDirection.BULLISH),
+            _make_agent("onchain", 35, 40, SignalDirection.BULLISH),
+            _make_agent("sentiment", 25, 30, SignalDirection.NEUTRAL),
+            _make_agent("context", 25, 30, SignalDirection.BULLISH),
+        ]
+>       signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:206: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=60, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:23.819 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=f82ba378-170e-4200-8525-5053d0dbf34c | asset=BTCUSDT
+___________ TestDecisionMapping.test_bearish_consensus_produces_sell ___________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestDecisionMapping object at 0x774cb72f8880>
+
+    @pytest.mark.asyncio
+    
+    async def test_bearish_consensus_produces_sell(self) -> None:
+        """Majority bearish agents → Sell/Strong Sell."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent("derivatives", 50, 70, SignalDirection.BEARISH),
+            _make_agent("technical", 40, 50, SignalDirection.BEARISH),
+            _make_agent("onchain", 30, 40, SignalDirection.BEARISH),
+            _make_agent("sentiment", 20, 30, SignalDirection.BULLISH),
+        ]
+>       signal = await scorer.score(agent_results=agents, asset="ETHUSDT")
+
+atlas/orchestrator/test_scorer.py:222: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=50, max_score=70, weight=1.0, direction=<SignalDirection.BEARISH: 'bearish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:23.907 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=7ffb768e-df68-4fb0-a448-fe3e0201eb4a | asset=ETHUSDT
+___________ TestDecisionMapping.test_risk_veto_overrides_high_score ____________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestDecisionMapping object at 0x774cb72f8af0>
+
+    @pytest.mark.asyncio
+    
+    async def test_risk_veto_overrides_high_score(self) -> None:
+        """Risk veto forces NO_POSITION despite high score."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent("derivatives", 70, 70, SignalDirection.BULLISH),
+            _make_agent("technical", 50, 50, SignalDirection.BULLISH),
+            _make_agent("onchain", 40, 40, SignalDirection.BULLISH),
+            _make_agent("risk", 0, 0, SignalDirection.NEUTRAL),
+        ]
+        # Set veto=True on the risk agent
+        # We need to recreate the risk agent since it's frozen
+        risk_agent = AgentResult(
+            agent_name="risk",
+            score=0,
+            max_score=0,
+            direction=SignalDirection.NEUTRAL,
+            veto=True,
+        )
+        agents[-1] = risk_agent
+    
+>       signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:252: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=70, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:23.930 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=764067e4-a605-42b6-9bbf-242acf53b5e7 | asset=BTCUSDT
+___________________ TestDecisionMapping.test_default_30m_ttl ___________________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestDecisionMapping object at 0x774cb72f8d60>
+
+    @pytest.mark.asyncio
+    
+    async def test_default_30m_ttl(self) -> None:
+        """30m timeframe uses 30-minute TTL."""
+        scorer = _make_scorer()
+        agents = [_make_agent("derivatives", 10, 70)]
+>       signal = await scorer.score(
+            agent_results=agents,
+            asset="BTCUSDT",
+            timeframe="30m",
+        )
+
+atlas/orchestrator/test_scorer.py:266: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=10, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:23.954 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=936fa3b8-3f2c-4873-8511-8a86f2a2f53a | asset=BTCUSDT
+________________ TestDecisionMapping.test_cascade_ttl_override _________________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestDecisionMapping object at 0x774cb72f8fd0>
+
+    @pytest.mark.asyncio
+    
+    async def test_cascade_ttl_override(self) -> None:
+        """Cascade-triggered signals use 2-minute TTL."""
+        scorer = _make_scorer()
+        agents = [_make_agent("derivatives", 10, 70)]
+>       signal = await scorer.score(
+            agent_results=agents,
+            asset="BTCUSDT",
+            is_cascade_triggered=True,
+            hydra_event_id="hydra-001",
+        )
+
+atlas/orchestrator/test_scorer.py:280: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=10, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:23.977 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=dc9b1634-e02a-43af-9bc1-65e7bb31c38c | asset=BTCUSDT
+__________________ TestDecisionMapping.test_1h_timeframe_ttl ___________________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestDecisionMapping object at 0x774cb72f9240>
+
+    @pytest.mark.asyncio
+    
+    async def test_1h_timeframe_ttl(self) -> None:
+        """1h timeframe uses 60-minute TTL."""
+        scorer = _make_scorer()
+        agents = [_make_agent("derivatives", 10, 70)]
+>       signal = await scorer.score(
+            agent_results=agents,
+            asset="BTCUSDT",
+            timeframe="1h",
+        )
+
+atlas/orchestrator/test_scorer.py:295: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=10, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:24.001 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=ad53e4a4-80ab-4ee6-a74a-3af2ddcea904 | asset=BTCUSDT
+________________ TestSignalIdentity.test_signal_id_is_generated ________________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestSignalIdentity object at 0x774cb72f95a0>
+
+    @pytest.mark.asyncio
+    
+    async def test_signal_id_is_generated(self) -> None:
+        """Each signal gets a unique signal_id."""
+        scorer = _make_scorer()
+        agents = [_make_agent("derivatives", 10, 70)]
+>       s1 = await scorer.score(agent_results=agents, asset="BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:313: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=10, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:24.023 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=e74d2702-ce8e-47d1-acac-fea13ec4c5cf | asset=BTCUSDT
+____________ TestSignalIdentity.test_asset_and_timeframe_propagated ____________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestSignalIdentity object at 0x774cb72f9810>
+
+    @pytest.mark.asyncio
+    
+    async def test_asset_and_timeframe_propagated(self) -> None:
+        """Asset and timeframe are stored on the signal."""
+        scorer = _make_scorer()
+        agents = [_make_agent("derivatives", 10, 70)]
+>       signal = await scorer.score(
+            agent_results=agents,
+            asset="ETHUSDT",
+            timeframe="4h",
+        )
+
+atlas/orchestrator/test_scorer.py:324: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=10, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:24.108 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=051945f7-75e8-4a33-90a0-aa9fb80a2ae5 | asset=ETHUSDT
+________ TestReasoningAggregation.test_reasoning_combines_explanations _________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestReasoningAggregation object at 0x774cb72f9ae0>
+
+    @pytest.mark.asyncio
+    
+    async def test_reasoning_combines_explanations(self) -> None:
+        """Agent explanations are combined into reasoning_summary."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent(
+                "derivatives", 10, 70,
+                explanation="OI rising sharply",
+            ),
+            _make_agent(
+                "technical", 10, 50,
+                explanation="RSI oversold",
+            ),
+        ]
+>       signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:351: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=10, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish...n='OI rising sharply', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:24.133 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=c21001fb-4817-45c8-8025-e5b1f09eff8d | asset=BTCUSDT
+_____________ TestReasoningAggregation.test_convergences_collected _____________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestReasoningAggregation object at 0x774cb72f9d50>
+
+    @pytest.mark.asyncio
+    
+    async def test_convergences_collected(self) -> None:
+        """Convergences are flattened from all agents."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent(
+                "derivatives", 10, 70,
+                convergences=["Funding extreme"],
+            ),
+            _make_agent(
+                "technical", 10, 50,
+                convergences=["Support bounce"],
+            ),
+        ]
+>       signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:370: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=10, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish...n='', convergences=['Funding extreme'], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:24.157 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=1ff0d0c5-371f-4682-bf88-3305c5896e15 | asset=BTCUSDT
+________________ TestReasoningAggregation.test_risks_collected _________________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestReasoningAggregation object at 0x774cb72f9fc0>
+
+    @pytest.mark.asyncio
+    
+    async def test_risks_collected(self) -> None:
+        """Risks are flattened from all agents."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent("derivatives", 10, 70, risks=["Resistance"]),
+        ]
+>       signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:382: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=10, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish...nation='', convergences=[], risks=['Resistance'], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:24.183 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=bf988671-5dc4-4881-b031-cabbcac30e55 | asset=BTCUSDT
+______________ TestCascadeLinkage.test_cascade_fields_propagated _______________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestCascadeLinkage object at 0x774cb72db520>
+
+    @pytest.mark.asyncio
+    
+    async def test_cascade_fields_propagated(self) -> None:
+        """Cascade-triggered signals carry the event ID."""
+        scorer = _make_scorer()
+        agents = [_make_agent("derivatives", 10, 70)]
+>       signal = await scorer.score(
+            agent_results=agents,
+            asset="BTCUSDT",
+            is_cascade_triggered=True,
+            hydra_event_id="hydra-cascade-42",
+        )
+
+atlas/orchestrator/test_scorer.py:395: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=10, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:24.211 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=cb967ed2-9587-4ca7-bdae-1c8f53fd64e0 | asset=BTCUSDT
+_________________ TestCascadeLinkage.test_non_cascade_defaults _________________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestCascadeLinkage object at 0x774cb72fa2f0>
+
+    @pytest.mark.asyncio
+    
+    async def test_non_cascade_defaults(self) -> None:
+        """Non-cascade signals have default values."""
+        scorer = _make_scorer()
+        agents = [_make_agent("derivatives", 10, 70)]
+>       signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:410: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=10, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:24.237 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=d613a3e9-0032-4dfa-a02f-06a486ea8b5b | asset=BTCUSDT
+______________ TestActionBlockNoAmount.test_action_has_no_amount _______________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestActionBlockNoAmount object at 0x774cb72f9a20>
+
+    @pytest.mark.asyncio
+    
+    async def test_action_has_no_amount(self) -> None:
+        """ActionBlock from scorer has no amount field."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent("derivatives", 60, 70, SignalDirection.BULLISH),
+            _make_agent("technical", 45, 50, SignalDirection.BULLISH),
+            _make_agent("onchain", 35, 40, SignalDirection.BULLISH),
+            _make_agent("sentiment", 25, 30, SignalDirection.BULLISH),
+        ]
+>       signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:429: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='derivatives', score=60, max_score=70, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:24.262 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=62865337-9e7f-4612-b275-f4932cf7fc1c | asset=BTCUSDT
+_________________ test_scorer_uses_meta_learner_when_available _________________
+
+    @pytest.mark.asyncio
+    
+    @pytest.mark.asyncio
+    async def test_scorer_uses_meta_learner_when_available() -> None:
+        scorer = _make_scorer()
+        mock_learner = MagicMock()
+        mock_learner.model = MagicMock()
+        mock_learner.predict.return_value = 0.85
+        scorer.meta_learner = mock_learner
+    
+        agent = _make_agent("technical", 100, 100)
+>       result = await scorer.score([agent], "BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:445: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:147: in score
+    suppression = _extract_conviction_suppression(agent_results)
+atlas/orchestrator/scorer.py:173: in _extract_conviction_suppression
+    if r.category.value == "news_macro" or r.agent_name == "news_macro_agent":
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='technical', score=100, max_score=100, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:24.367 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=45f91ae3-a71a-4f09-9ae6-4c80b7ac2fe2 | asset=BTCUSDT
+2026-04-21 17:54:24.367 | INFO     | atlas.orchestrator.scorer:score:134 - scoring mode: meta_learner
+____________ test_scorer_falls_back_when_meta_learner_model_is_none ____________
+
+    @pytest.mark.asyncio
+    async def test_scorer_falls_back_when_meta_learner_model_is_none() -> None:
+        scorer = _make_scorer()
+        mock_learner = MagicMock()
+        mock_learner.model = None
+        scorer.meta_learner = mock_learner
+    
+        agent = _make_agent("technical", 100, 100)
+>       result = await scorer.score([agent], "BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:456: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:144: in score
+    normalised = _normalise_score(_compute_weighted_sum(scoring_agents))
+atlas/orchestrator/scorer.py:230: in _compute_weighted_sum
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+atlas/orchestrator/scorer.py:230: in <listcomp>
+    scoring_results = [r for r in agent_results if r.category != AgentCategory.RISK]
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = AgentResult(agent_name='technical', score=100, max_score=100, weight=1.0, direction=<SignalDirection.BULLISH: 'bullish'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))
+item = 'category'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'AgentResult' object has no attribute 'category'
+
+/home/bi/.local/lib/python3.10/site-packages/pydantic/main.py:1042: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:24.395 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=63987717-565c-41c9-a01f-ad9286d514ee | asset=BTCUSDT
+=========================== short test summary info ============================
+FAILED atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_full_score_normalises_to_100
+FAILED atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_partial_score_normalises_correctly
+FAILED atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_risk_filtered_out_of_weighted_sum
+FAILED atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_conviction_suppression_applied_and_floored
+FAILED atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_high_score_bullish_is_strong_buy
+FAILED atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_bearish_consensus_produces_sell
+FAILED atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_risk_veto_overrides_high_score
+FAILED atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_default_30m_ttl
+FAILED atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_cascade_ttl_override
+FAILED atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_1h_timeframe_ttl
+FAILED atlas/orchestrator/test_scorer.py::TestSignalIdentity::test_signal_id_is_generated
+FAILED atlas/orchestrator/test_scorer.py::TestSignalIdentity::test_asset_and_timeframe_propagated
+FAILED atlas/orchestrator/test_scorer.py::TestReasoningAggregation::test_reasoning_combines_explanations
+FAILED atlas/orchestrator/test_scorer.py::TestReasoningAggregation::test_convergences_collected
+FAILED atlas/orchestrator/test_scorer.py::TestReasoningAggregation::test_risks_collected
+FAILED atlas/orchestrator/test_scorer.py::TestCascadeLinkage::test_cascade_fields_propagated
+FAILED atlas/orchestrator/test_scorer.py::TestCascadeLinkage::test_non_cascade_defaults
+FAILED atlas/orchestrator/test_scorer.py::TestActionBlockNoAmount::test_action_has_no_amount
+FAILED atlas/orchestrator/test_scorer.py::test_scorer_uses_meta_learner_when_available
+FAILED atlas/orchestrator/test_scorer.py::test_scorer_falls_back_when_meta_learner_model_is_none
+======================== 20 failed, 10 passed in 1.78s =========================

@@ -1,0 +1,55 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: atlas-redis-dev
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - atlas_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: atlas-postgres-dev
+    environment:
+      POSTGRES_DB: atlas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    # Host port 5433 avoids clashing with a local PostgreSQL service on :5432.
+    ports:
+      - "5433:5432"
+    volumes:
+      - atlas_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d atlas"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  qdrant:
+    image: qdrant/qdrant:v1.12.6
+    container_name: atlas-qdrant-dev
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - atlas_qdrant_data:/qdrant/storage
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  atlas_redis_data:
+  atlas_postgres_data:
+  atlas_qdrant_data:

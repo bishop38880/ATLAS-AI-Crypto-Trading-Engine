@@ -1,0 +1,233 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-8.4.1, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+metadata: {'Python': '3.10.12', 'Platform': 'Linux-6.17.9-76061709-generic-x86_64-with-glibc2.35', 'Packages': {'pytest': '8.4.1', 'pluggy': '1.6.0'}, 'Plugins': {'mock': '3.14.1', 'json-report': '1.5.0', 'anyio': '4.12.1', 'asyncio': '1.1.0', 'sugar': '1.1.1', 'langsmith': '0.6.0', 'hydra-core': '1.3.2', 'Faker': '37.5.3', 'respx': '0.22.0', 'clarity': '1.0.1', 'metadata': '3.1.1', 'timeout': '2.4.0', 'benchmark': '5.1.0', 'hypothesis': '6.141.0', 'cov': '6.2.1', 'repeat': '0.9.4', 'xdist': '3.7.0', 'html': '4.1.1'}}
+benchmark: 5.1.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'default'
+rootdir: /home/bi/Desktop/Engine 8/ATLAS
+configfile: pyproject.toml
+plugins: mock-3.14.1, json-report-1.5.0, anyio-4.12.1, asyncio-1.1.0, sugar-1.1.1, langsmith-0.6.0, hydra-core-1.3.2, Faker-37.5.3, respx-0.22.0, clarity-1.0.1, metadata-3.1.1, timeout-2.4.0, benchmark-5.1.0, hypothesis-6.141.0, cov-6.2.1, repeat-0.9.4, xdist-3.7.0, html-4.1.1
+asyncio: mode=auto, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collecting ... collected 22 items
+
+atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_zero_agents_produces_zero_score PASSED [  4%]
+atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_full_score_normalises_to_100 FAILED [  9%]
+atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_partial_score_normalises_correctly PASSED [ 13%]
+atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_category_weights_sum_to_one PASSED [ 18%]
+atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_risk_filtered_out_of_weighted_sum FAILED [ 22%]
+atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_conviction_suppression_applied_and_floored PASSED [ 27%]
+atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_high_score_bullish_is_strong_buy FAILED [ 31%]
+atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_bearish_consensus_produces_sell FAILED [ 36%]
+atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_risk_veto_overrides_high_score FAILED [ 40%]
+atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_default_30m_ttl PASSED [ 45%]
+atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_cascade_ttl_override PASSED [ 50%]
+atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_1h_timeframe_ttl PASSED [ 54%]
+atlas/orchestrator/test_scorer.py::TestSignalIdentity::test_signal_id_is_generated PASSED [ 59%]
+atlas/orchestrator/test_scorer.py::TestSignalIdentity::test_asset_and_timeframe_propagated PASSED [ 63%]
+atlas/orchestrator/test_scorer.py::TestReasoningAggregation::test_reasoning_combines_explanations PASSED [ 68%]
+atlas/orchestrator/test_scorer.py::TestReasoningAggregation::test_convergences_collected PASSED [ 72%]
+atlas/orchestrator/test_scorer.py::TestReasoningAggregation::test_risks_collected PASSED [ 77%]
+atlas/orchestrator/test_scorer.py::TestCascadeLinkage::test_cascade_fields_propagated PASSED [ 81%]
+atlas/orchestrator/test_scorer.py::TestCascadeLinkage::test_non_cascade_defaults PASSED [ 86%]
+atlas/orchestrator/test_scorer.py::TestActionBlockNoAmount::test_action_has_no_amount PASSED [ 90%]
+atlas/orchestrator/test_scorer.py::test_scorer_uses_meta_learner_when_available PASSED [ 95%]
+atlas/orchestrator/test_scorer.py::test_scorer_falls_back_when_meta_learner_model_is_none PASSED [100%]
+
+=================================== FAILURES ===================================
+____________ TestScoreAggregation.test_full_score_normalises_to_100 ____________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestScoreAggregation object at 0x7744adca2cb0>
+
+    @pytest.mark.asyncio
+    
+    async def test_full_score_normalises_to_100(self) -> None:
+        """220 raw points → 100 normalised."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent("derivatives", 70, 70),
+            _make_agent("technical", 50, 50),
+            _make_agent("onchain", 40, 40),
+            _make_agent("sentiment", 30, 30),
+            _make_agent("context", 30, 30),
+        ]
+        signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+>       assert signal.score == 100
+E       AssertionError: assert 15 == 100
+E        +  where 15 = SignalOutput(signal_id='c6a1fdb6-cdd7-4194-ba5e-b9d5a353484a', timestamp=datetime.datetime(2026, 4, 21, 21, 54, 53, 725840, tzinfo=datetime.timezone.utc), decision=<SignalDecision.NO_POSITION: 'No Position'>, asset='BTCUSDT', timeframe='30m', action=None, expires_at=datetime.datetime(2026, 4, 21, 22, 24, 53, 725840, tzinfo=datetime.timezone.utc), reasoning_summary='', key_convergences=[], key_risks=[], is_cascade_triggered=False, hydra_event_id=None, score=15, confidence=0.15, category_scores=CategoryScores(derivatives=32, onchain=18, technical=23, sentiment=14, context=14, total=101), contributing_graph_paths=[], telemetry=TelemetryEvent(cycle_id='', cycle_latency_ms=0.0, agent_count=5, timestamp=datetime.datetime(2026, 4, 21, 21, 54, 53, 725840, tzinfo=datetime.timezone.utc)), calibrated_probability=None, calibration_ece=None, deepseek_evaluation=None, agent_breakdown={}, raw_confluence_score=0).score
+
+atlas/orchestrator/test_scorer.py:122: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:53.725 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=c6a1fdb6-cdd7-4194-ba5e-b9d5a353484a | asset=BTCUSDT
+2026-04-21 17:54:53.725 | INFO     | atlas.orchestrator.scorer:score:145 - scoring mode: fixed_weights
+_________ TestScoreAggregation.test_risk_filtered_out_of_weighted_sum __________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestScoreAggregation object at 0x7744adca3400>
+
+    @pytest.mark.asyncio
+    async def test_risk_filtered_out_of_weighted_sum(self) -> None:
+        """Risk agent results do not contribute to weighted sum."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent("technical", 220, 220),  # Weight 0.25 -> 55 points
+            _make_agent("risk", 220, 220),       # Should be ignored completely
+        ]
+>       signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+
+atlas/orchestrator/test_scorer.py:153: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+atlas/orchestrator/scorer.py:160: in score
+    return _assemble_signal_output(
+atlas/orchestrator/scorer.py:205: in _assemble_signal_output
+    category_scores=_build_category_scores(agents),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+agent_results = [AgentResult(agent_name='technical', score=220, max_score=220, weight=1.0, direction=<SignalDirection.BULLISH: 'bullis...sh'>, explanation='', convergences=[], risks=[], veto=False, sub_signals={}, telemetry=AgentTelemetry(latency_ms=0.0))]
+
+    def _build_category_scores(
+        agent_results: list[AgentResult],
+    ) -> CategoryScores:
+        """Map agent scores to per-category breakdown.
+    
+        Each agent's raw score is normalised proportionally to 0–100
+        scale, then assigned to its category. Unknown agent names
+        are silently skipped (logged as warning).
+    
+        Args:
+            agent_results: List of agent results.
+    
+        Returns:
+            CategoryScores with normalised per-category values.
+        """
+        categories: dict[str, int] = {
+            "technical": 0,
+            "derivatives": 0,
+            "onchain": 0,
+            "sentiment": 0,
+            "whale": 0,
+            "liquidation": 0,
+            "regime": 0,
+            "funding": 0,
+            "news_macro": 0,
+            "correlation": 0,
+            "context": 0,
+        }
+        for result in agent_results:
+            category = _AGENT_CATEGORY_MAP.get(result.agent_name)
+            if category is None:
+                logger.warning(
+                    "unknown agent category | agent={}",
+                    result.agent_name,
+                )
+                continue
+            normalised = _normalise_agent_score(result)
+            categories[category] = normalised
+    
+        total = sum(categories.values())
+>       return CategoryScores(**categories, total=total)
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for CategoryScores
+E         Value error, total=200 does not match sum=100 [type=value_error, input_value={'technical': 100, 'deriv...isk': 100, 'total': 200}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.13/v/value_error
+
+atlas/orchestrator/scorer.py:308: ValidationError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:53.860 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=1a908363-21a6-46d4-af67-a697348fbe55 | asset=BTCUSDT
+2026-04-21 17:54:53.860 | INFO     | atlas.orchestrator.scorer:score:145 - scoring mode: fixed_weights
+__________ TestDecisionMapping.test_high_score_bullish_is_strong_buy ___________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestDecisionMapping object at 0x7744adca39a0>
+
+    @pytest.mark.asyncio
+    
+    async def test_high_score_bullish_is_strong_buy(self) -> None:
+        """High bullish score → Strong Buy with ActionBlock."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent("derivatives", 60, 70, SignalDirection.BULLISH),
+            _make_agent("technical", 45, 50, SignalDirection.BULLISH),
+            _make_agent("onchain", 35, 40, SignalDirection.BULLISH),
+            _make_agent("sentiment", 25, 30, SignalDirection.NEUTRAL),
+            _make_agent("context", 25, 30, SignalDirection.BULLISH),
+        ]
+        signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+>       assert signal.decision == SignalDecision.STRONG_BUY
+E       AssertionError: assert <SignalDecisi...'No Position'> == <SignalDecisi... 'Strong Buy'>
+E         
+E         - Strong Buy
+E         + No Position
+
+atlas/orchestrator/test_scorer.py:207: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:53.881 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=fde69a50-728e-418d-9286-82b1dac4a236 | asset=BTCUSDT
+2026-04-21 17:54:53.881 | INFO     | atlas.orchestrator.scorer:score:145 - scoring mode: fixed_weights
+___________ TestDecisionMapping.test_bearish_consensus_produces_sell ___________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestDecisionMapping object at 0x7744adca3c10>
+
+    @pytest.mark.asyncio
+    
+    async def test_bearish_consensus_produces_sell(self) -> None:
+        """Majority bearish agents → Sell/Strong Sell."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent("derivatives", 50, 70, SignalDirection.BEARISH),
+            _make_agent("technical", 40, 50, SignalDirection.BEARISH),
+            _make_agent("onchain", 30, 40, SignalDirection.BEARISH),
+            _make_agent("sentiment", 20, 30, SignalDirection.BULLISH),
+        ]
+        signal = await scorer.score(agent_results=agents, asset="ETHUSDT")
+>       assert signal.decision in {
+            SignalDecision.SELL,
+            SignalDecision.STRONG_SELL,
+        }
+E       AssertionError: assert <SignalDecision.NO_POSITION: 'No Position'> in {<SignalDecision.SELL: 'Sell'>, <SignalDecision.STRONG_SELL: 'Strong Sell'>}
+E        +  where <SignalDecision.NO_POSITION: 'No Position'> = SignalOutput(signal_id='685541cb-2442-4ddf-b1ae-01ec5fbd0a82', timestamp=datetime.datetime(2026, 4, 21, 21, 54, 53, 890613, tzinfo=datetime.timezone.utc), decision=<SignalDecision.NO_POSITION: 'No Position'>, asset='ETHUSDT', timeframe='30m', action=None, expires_at=datetime.datetime(2026, 4, 21, 22, 24, 53, 890613, tzinfo=datetime.timezone.utc), reasoning_summary='', key_convergences=[], key_risks=[], is_cascade_triggered=False, hydra_event_id=None, score=12, confidence=0.12, category_scores=CategoryScores(derivatives=23, onchain=14, technical=18, sentiment=9, context=0, total=64), contributing_graph_paths=[], telemetry=TelemetryEvent(cycle_id='', cycle_latency_ms=0.0, agent_count=4, timestamp=datetime.datetime(2026, 4, 21, 21, 54, 53, 890613, tzinfo=datetime.timezone.utc)), calibrated_probability=None, calibration_ece=None, deepseek_evaluation=None, agent_breakdown={}, raw_confluence_score=0).decision
+
+atlas/orchestrator/test_scorer.py:223: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:53.890 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=685541cb-2442-4ddf-b1ae-01ec5fbd0a82 | asset=ETHUSDT
+2026-04-21 17:54:53.890 | INFO     | atlas.orchestrator.scorer:score:145 - scoring mode: fixed_weights
+___________ TestDecisionMapping.test_risk_veto_overrides_high_score ____________
+
+self = <ATLAS.atlas.orchestrator.test_scorer.TestDecisionMapping object at 0x7744adca3e80>
+
+    @pytest.mark.asyncio
+    
+    async def test_risk_veto_overrides_high_score(self) -> None:
+        """Risk veto forces NO_POSITION despite high score."""
+        scorer = _make_scorer()
+        agents = [
+            _make_agent("derivatives", 70, 70, SignalDirection.BULLISH),
+            _make_agent("technical", 50, 50, SignalDirection.BULLISH),
+            _make_agent("onchain", 40, 40, SignalDirection.BULLISH),
+            _make_agent("risk", 0, 0, SignalDirection.NEUTRAL),
+        ]
+        # Set veto=True on the risk agent
+        # We need to recreate the risk agent since it's frozen
+        risk_agent = AgentResult(
+            agent_name="risk",
+            score=0,
+            max_score=0,
+            direction=SignalDirection.NEUTRAL,
+            veto=True,
+        )
+        agents[-1] = risk_agent
+    
+        signal = await scorer.score(agent_results=agents, asset="BTCUSDT")
+        assert signal.decision == SignalDecision.NO_POSITION
+        assert signal.action is None
+        # Score is still calculated from non-risk agents
+>       assert signal.score == 73
+E       AssertionError: assert 14 == 73
+E        +  where 14 = SignalOutput(signal_id='1e31e5d7-a5b8-404a-b15e-78ac8f623e02', timestamp=datetime.datetime(2026, 4, 21, 21, 54, 53, 898841, tzinfo=datetime.timezone.utc), decision=<SignalDecision.NO_POSITION: 'No Position'>, asset='BTCUSDT', timeframe='30m', action=None, expires_at=datetime.datetime(2026, 4, 21, 22, 24, 53, 898841, tzinfo=datetime.timezone.utc), reasoning_summary='', key_convergences=[], key_risks=[], is_cascade_triggered=False, hydra_event_id=None, score=14, confidence=0.14, category_scores=CategoryScores(derivatives=32, onchain=18, technical=23, sentiment=0, context=0, total=73), contributing_graph_paths=[], telemetry=TelemetryEvent(cycle_id='', cycle_latency_ms=0.0, agent_count=4, timestamp=datetime.datetime(2026, 4, 21, 21, 54, 53, 898841, tzinfo=datetime.timezone.utc)), calibrated_probability=None, calibration_ece=None, deepseek_evaluation=None, agent_breakdown={}, raw_confluence_score=0).score
+
+atlas/orchestrator/test_scorer.py:256: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-04-21 17:54:53.898 | INFO     | atlas.orchestrator.scorer:score:118 - scoring start | signal_id=1e31e5d7-a5b8-404a-b15e-78ac8f623e02 | asset=BTCUSDT
+2026-04-21 17:54:53.898 | INFO     | atlas.orchestrator.scorer:score:145 - scoring mode: fixed_weights
+=========================== short test summary info ============================
+FAILED atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_full_score_normalises_to_100
+FAILED atlas/orchestrator/test_scorer.py::TestScoreAggregation::test_risk_filtered_out_of_weighted_sum
+FAILED atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_high_score_bullish_is_strong_buy
+FAILED atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_bearish_consensus_produces_sell
+FAILED atlas/orchestrator/test_scorer.py::TestDecisionMapping::test_risk_veto_overrides_high_score
+========================= 5 failed, 17 passed in 1.19s =========================

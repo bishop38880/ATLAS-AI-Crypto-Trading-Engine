@@ -1,0 +1,66 @@
+# Phase 4: Weekly Chaos Drill CronJob
+# Runs every Sunday at 02:00 UTC in the atlas-staging namespace.
+# On failure, sends Telegram alert and exits non-zero to block promotion.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: chaos-drill-weekly
+  namespace: atlas-staging
+  labels:
+    app: atlas
+    component: chaos-engineering
+    phase: "4"
+spec:
+  schedule: "0 2 * * 0"  # Sunday 02:00 UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 4
+  failedJobsHistoryLimit: 4
+  jobTemplate:
+    metadata:
+      labels:
+        app: atlas
+        component: chaos-drill
+    spec:
+      backoffLimit: 0  # No retries — drill must pass cleanly
+      activeDeadlineSeconds: 1800  # 30-minute hard timeout
+      template:
+        metadata:
+          labels:
+            app: atlas
+            component: chaos-drill
+        spec:
+          serviceAccountName: chaos-drill-sa
+          restartPolicy: Never
+          containers:
+            - name: chaos-drill
+              image: atlas:latest
+              command:
+                - python
+                - -m
+                - scripts.chaos_drill
+              env:
+                - name: CHAOS_DRILL_ENV
+                  value: "staging"
+                - name: CHAOS_DRILL_DRY_RUN
+                  value: "false"
+              envFrom:
+                - secretRef:
+                    name: chaos-drill-secrets
+                    # Expected keys:
+                    #   POSTGRES_DSN
+                    #   REDIS_URL
+                    #   POLARIS_PANIC_KEY
+                    #   PROMETHEUS_HOST
+                    #   TELEGRAM_BOT_TOKEN
+                    #   TELEGRAM_CHAT_ID
+              resources:
+                requests:
+                  cpu: "250m"
+                  memory: "256Mi"
+                limits:
+                  cpu: "500m"
+                  memory: "512Mi"
+              securityContext:
+                capabilities:
+                  add:
+                    - NET_ADMIN  # Required for iptables scenario

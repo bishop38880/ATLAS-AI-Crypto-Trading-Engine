@@ -1,0 +1,533 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+@import "tailwindcss";
+
+:root {
+  /* Backgrounds — layered slate command center */
+  --bg-base: #06080f;
+  --bg-surface: #0f172a;
+  --bg-elevated: #1e293b;
+  --bg-overlay: #243044;
+  --bg-card: #0f172a;
+  --bg-card-hover: #1a2740;
+
+  /* Borders */
+  --border: rgba(148, 163, 184, 0.14);
+  --border-hover: rgba(148, 163, 184, 0.28);
+  --border-accent: rgba(34, 211, 238, 0.35);
+
+  /* Signal colors */
+  --strong-buy: #00e676;
+  --buy: #66bb6a;
+  --hold: #ffa726;
+  --sell: #ef5350;
+  --strong-sell: #b71c1c;
+  --no-position: #546e7a;
+
+  /* Accent colors */
+  --accent-cyan: #22d3ee;
+  --accent-amber: #fbbf24;
+  --accent-violet: #a78bfa;
+  --accent-teal: #2dd4bf;
+
+  /* Text — softened off-whites for long sessions */
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-accent: #22d3ee;
+
+  /* Status */
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --success: #34d399;
+  --degraded: #fb923c;
+
+  /* Fonts — sans for UI copy; mono for data only */
+  --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Transitions */
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  background-color: #0a0f16;
+}
+
+body {
+  font-family: var(--font-body);
+  background: transparent;
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scrollbar styling — thin dark glass-friendly rails */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+@layer components {
+  .panel-title {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400;
+  }
+
+  .metric-glow {
+    filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.28));
+  }
+
+  /* —— Page chrome —— */
+  .page-header {
+    @apply flex flex-wrap items-start justify-between gap-4;
+  }
+
+  .page-kicker {
+    @apply text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-400/85;
+  }
+
+  .page-title {
+    @apply mt-1.5 text-2xl font-semibold tracking-tight text-slate-50;
+  }
+
+  .page-lede {
+    @apply mt-2 max-w-3xl text-sm leading-relaxed text-slate-400;
+  }
+
+  .section-label {
+    @apply text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500;
+  }
+
+  /* —— Command cards —— */
+  .command-card {
+    @apply overflow-hidden rounded-[var(--radius-lg)] border border-slate-800 bg-[var(--bg-card)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_4px_24px_rgba(0,0,0,0.22)];
+    background-image: linear-gradient(165deg, rgba(30, 41, 59, 0.22) 0%, transparent 42%);
+  }
+
+  .command-card-header {
+    @apply flex items-start justify-between gap-3 border-b border-slate-800/90 px-4 py-3;
+  }
+
+  .command-card-title {
+    font-family: var(--font-display);
+    @apply text-sm font-semibold tracking-tight text-slate-100;
+  }
+
+  .command-card-subtitle {
+    @apply mt-0.5 text-xs leading-snug text-slate-400;
+  }
+
+  .command-card-body {
+    @apply p-4;
+  }
+
+  .command-card-accent-cyan {
+    @apply border-t-2 border-t-cyan-500/50;
+  }
+
+  .command-card-accent-amber {
+    @apply border-t-2 border-t-amber-500/45;
+  }
+
+  .command-card-accent-violet {
+    @apply border-t-2 border-t-violet-500/45;
+  }
+
+  .command-card-accent-teal {
+    @apply border-t-2 border-t-teal-500/45;
+  }
+
+  /* —— Buttons —— */
+  .btn-pill {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-md border border-slate-700/80 bg-slate-900/70 font-medium text-slate-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-[background-color,border-color,color,box-shadow] duration-[var(--transition-base)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .btn-pill:hover {
+    @apply border-slate-600 bg-slate-800/90 text-slate-50;
+  }
+
+  .btn-pill-primary {
+    @apply border-cyan-500/40 bg-cyan-950/50 text-cyan-100 hover:border-cyan-400/55 hover:bg-cyan-900/55 hover:text-cyan-50;
+  }
+
+  .btn-pill-ghost {
+    @apply border-transparent bg-transparent text-slate-400 shadow-none hover:border-slate-700/60 hover:bg-slate-900/50 hover:text-slate-200;
+  }
+
+  /* —— Sidebar navigation —— */
+  .nav-item {
+    @apply flex items-center gap-3 rounded-md border border-transparent border-l-2 border-l-transparent px-2.5 py-2 text-sm font-medium text-slate-400 transition-[background-color,border-color,color,box-shadow] duration-[var(--transition-base)] [&_svg]:text-slate-500;
+  }
+
+  .nav-item:hover {
+    @apply bg-slate-900/55 text-slate-200 [&_svg]:text-slate-300;
+  }
+
+  .nav-item-active {
+    @apply border-l-cyan-400 bg-cyan-500/[0.12] font-semibold text-cyan-200 shadow-[inset_0_0_24px_rgba(34,211,238,0.08)] [&_svg]:text-cyan-300;
+  }
+
+  /* —— Data tables —— */
+  .data-table {
+    @apply w-full min-w-[720px] border-collapse text-left text-xs;
+  }
+
+  .data-table thead {
+    @apply bg-slate-900/80 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500;
+  }
+
+  .data-table th {
+    @apply px-3 py-2.5;
+  }
+
+  .data-table th.text-right,
+  .data-table td.text-right {
+    @apply text-right;
+  }
+
+  .data-table tbody {
+    @apply divide-y divide-slate-800/90 text-slate-200;
+  }
+
+  .data-table tbody tr.data-row-interactive {
+    @apply cursor-pointer transition-colors hover:bg-slate-800/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950;
+  }
+
+  .data-table td {
+    @apply px-3 py-2 align-middle;
+  }
+
+  .data-table td.font-data {
+    font-family: var(--font-data);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* —— Agent type badges —— */
+  .type-badge {
+    @apply inline-flex items-center rounded border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em];
+  }
+
+  .type-badge-confluence {
+    @apply border-cyan-500/35 bg-cyan-950/50 text-cyan-200;
+  }
+
+  .type-badge-overlay {
+    @apply border-violet-500/35 bg-violet-950/45 text-violet-200;
+  }
+
+  .type-badge-veto {
+    @apply border-red-500/35 bg-red-950/45 text-red-200;
+  }
+
+  .type-badge-shadow {
+    @apply border-slate-600/50 bg-slate-900/70 text-slate-400;
+  }
+
+  /* —— Status pills (hardware LED tags) —— */
+  .status-pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5;
+  }
+
+  .status-pill-healthy {
+    @apply border-emerald-500/30 bg-emerald-950/40 text-emerald-200;
+  }
+
+  .status-pill-degraded {
+    @apply border-amber-500/30 bg-amber-950/40 text-amber-200;
+  }
+
+  .status-pill-error {
+    @apply border-red-500/30 bg-red-950/40 text-red-200;
+  }
+
+  .status-pill-offline {
+    @apply border-slate-600/40 bg-slate-900/60 text-slate-400;
+  }
+
+  .status-pill-shadow {
+    @apply border-violet-500/35 bg-violet-950/45 text-violet-200;
+  }
+
+  /* —— Form controls —— */
+  .input-control {
+    @apply cursor-pointer rounded-md border border-slate-700/80 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-[border-color,box-shadow] duration-[var(--transition-base)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950;
+  }
+
+  .input-control:hover {
+    @apply border-slate-600;
+  }
+
+  /* —— KPI / stat tiles —— */
+  .stat-tile {
+    @apply rounded-lg border border-slate-800/90 bg-slate-950/55 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)];
+  }
+
+  .stat-tile-label {
+    @apply text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500;
+  }
+
+  .stat-tile-value {
+    font-family: var(--font-data);
+    @apply mt-1 text-lg font-semibold tabular-nums tracking-tight text-slate-100;
+  }
+
+  .stat-tile-value,
+  .marl-metric-row,
+  .data-table td.font-data {
+    font-family: var(--font-data);
+  }
+
+  /* —— Gate pills —— */
+  .gate-pill {
+    @apply inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em];
+  }
+
+  .gate-pill-pass {
+    @apply border-emerald-500/35 bg-emerald-950/45 text-emerald-200;
+  }
+
+  .gate-pill-fail {
+    @apply border-red-500/35 bg-red-950/45 text-red-200;
+  }
+
+  .gate-pill-gated {
+    @apply border-amber-500/35 bg-amber-950/45 text-amber-200;
+  }
+
+  /* —— Dashboard asset cards —— */
+  .asset-card {
+    @apply relative block w-full rounded-[var(--radius-lg)] border border-slate-800 bg-[var(--bg-card)] p-3 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_2px_12px_rgba(0,0,0,0.2)] transition-[transform,border-color,opacity,box-shadow] duration-[var(--transition-base)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950;
+    background-image: linear-gradient(160deg, rgba(30, 41, 59, 0.18) 0%, transparent 50%);
+  }
+
+  .asset-card:hover {
+    @apply -translate-y-px border-slate-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_8px_28px_rgba(0,0,0,0.35)];
+  }
+
+  /* —— Drawer overlay —— */
+  .drawer-scrim {
+    @apply fixed inset-0 z-50 flex justify-end bg-slate-950/75 p-4 backdrop-blur-[2px];
+  }
+
+  .drawer-panel {
+    @apply max-h-full w-full max-w-lg overflow-y-auto rounded-[var(--radius-lg)] border border-slate-700/80 bg-slate-900 shadow-[0_24px_64px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.05)];
+    background-image: linear-gradient(180deg, rgba(30, 41, 59, 0.35) 0%, transparent 28%);
+  }
+
+  .drawer-panel-header {
+    @apply flex items-start justify-between gap-3 border-b border-slate-800 px-4 py-3;
+  }
+
+  /* —— MARL metric rows —— */
+  .marl-metric-row {
+    font-family: var(--font-data);
+    @apply flex flex-wrap gap-2 rounded-md border border-slate-800/80 bg-slate-950/50 px-2.5 py-2 text-xs tabular-nums;
+  }
+
+  /* —— Table zebra (dense) —— */
+  .data-table tbody tr.data-row-interactive:nth-child(even) {
+    @apply bg-slate-900/25;
+  }
+
+  .data-table-compact tbody tr {
+    @apply transition-colors hover:bg-slate-800/40;
+  }
+
+  .data-table-compact tbody tr:nth-child(even) {
+    @apply bg-slate-900/30;
+  }
+
+  .data-table-sticky thead {
+    @apply sticky top-0 z-[1] bg-slate-900/95 backdrop-blur-sm;
+  }
+
+  .data-table-subtotal-row {
+    @apply bg-cyan-950/25 font-medium text-slate-300;
+  }
+
+  /* —— Empty / placeholder blocks —— */
+  .empty-state {
+    @apply rounded-lg border border-dashed border-slate-700/90 bg-slate-950/45 px-4 py-6 text-center text-sm leading-relaxed text-slate-400;
+  }
+
+  /* —— Horizontal status strip (dashboard) —— */
+  .command-strip {
+    @apply flex flex-wrap items-center gap-3 rounded-[var(--radius-lg)] border border-slate-800 bg-[var(--bg-card)] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)];
+    background-image: linear-gradient(165deg, rgba(30, 41, 59, 0.2) 0%, transparent 45%);
+  }
+
+  /* —— Sidebar section labels —— */
+  .nav-section-label {
+    @apply px-2.5 pb-1 pt-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-600;
+  }
+
+  /* —— Telemetry list fade at bottom —— */
+  .telemetry-log-fade {
+    mask-image: linear-gradient(to bottom, black 88%, transparent 100%);
+  }
+
+  /* —— Drawer motion —— */
+  .drawer-panel-enter {
+    animation: drawer-slide-in 220ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+}
+
+::selection {
+  background: rgba(34, 211, 238, 0.22);
+  color: #f8fafc;
+}
+
+/* Number/data elements */
+.data,
+.font-data {
+  font-family: var(--font-data);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
+}
+
+.display {
+  font-family: var(--font-display);
+}
+
+/* Signal color utilities */
+.signal-strong-buy {
+  color: var(--strong-buy);
+}
+.signal-buy {
+  color: var(--buy);
+}
+.signal-hold {
+  color: var(--hold);
+}
+.signal-sell {
+  color: var(--sell);
+}
+.signal-strong-sell {
+  color: var(--strong-sell);
+}
+.signal-no-position {
+  color: var(--no-position);
+}
+
+/* App shell animations */
+@keyframes health-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 8px 3px rgba(0, 230, 118, 0.25);
+  }
+}
+
+@keyframes shadow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(124, 77, 255, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 8px 3px rgba(124, 77, 255, 0.3);
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes cycle-flash {
+  0% {
+    color: var(--accent-cyan);
+    text-shadow: 0 0 12px rgba(34, 211, 238, 0.45);
+  }
+  100% {
+    color: var(--text-primary);
+    text-shadow: none;
+  }
+}
+
+@keyframes drawer-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.health-dot-pulse {
+  animation: health-pulse 2s ease-in-out infinite;
+}
+
+.shadow-dot-pulse {
+  animation: shadow-pulse 2s ease-in-out infinite;
+}
+
+.cycle-timer-flash {
+  animation: cycle-flash 420ms ease-out 1;
+}
+
+.skeleton-shimmer-bg {
+  background: linear-gradient(
+    90deg,
+    var(--bg-elevated) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    var(--bg-elevated) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}

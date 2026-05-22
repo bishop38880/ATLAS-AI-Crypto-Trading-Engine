@@ -1,0 +1,17 @@
+{
+  "code": "00000",
+  "msg": "success",
+  "requestTime": 1700000000000,
+  "data": [
+    {
+      "symbol": "BTCUSDT",
+      "baseCoin": "BTC",
+      "quoteCoin": "USDT",
+      "minTradeNum": "0.001",
+      "sizeMultiplier": "0.001",
+      "priceEndStep": "0.1",
+      "takerFeeRate": "0.0006",
+      "makerFeeRate": "0.0002"
+    }
+  ]
+}

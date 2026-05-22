@@ -1,0 +1,23 @@
+{
+  "code": "00000",
+  "msg": "success",
+  "requestTime": 1700000000000,
+  "data": [
+    {
+      "symbol": "BTCUSDT",
+      "productType": "USDT-FUTURES",
+      "marginMode": "isolated",
+      "marginCoin": "USDT",
+      "holdSide": "long",
+      "total": "0.150",
+      "available": "0.150",
+      "leverage": "5",
+      "averageOpenPrice": "70000.5",
+      "markPrice": "71250.3",
+      "unrealizedPL": "187.47",
+      "marginSize": "2100.015",
+      "liquidationPrice": "58000.0",
+      "cTime": "1700000000000"
+    }
+  ]
+}

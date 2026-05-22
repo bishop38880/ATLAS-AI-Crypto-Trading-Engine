@@ -1,0 +1,114 @@
+---
+description: Approved technology stack for ATLAS — no new deps without explicit approval
+globs: ["**/*.py", "**/pyproject.toml", "**/requirements*.txt"]
+alwaysApply: true
+---
+
+# Technology Stack — Approved Libraries Only
+
+<ABSOLUTE_RULE>
+No new library may be added to the codebase without explicit approval.
+If a task seems to require a library not on this list, ASK before adding it.
+</ABSOLUTE_RULE>
+
+## Core Stack
+
+| Layer              | Library                    | Purpose                                    |
+|-------------------|----------------------------|--------------------------------------------|
+| Language          | Python 3.12                | Latest stable, best async performance      |
+| Web Framework     | FastAPI                    | Async-native API layer                     |
+| HTTP Client       | httpx (HTTP/2)             | All fetch_ functions — async, pooled       |
+| Serialisation     | msgspec                    | JSON encode/decode — unconditionally       |
+| Event Loop        | uvloop                     | 2–4× faster asyncio                        |
+| Live State Cache  | Redis + redis.asyncio      | Provider cache, agent status, TTL, 24h hot cache |
+| Historical Store  | PostgreSQL + asyncpg       | Signal history, agent verdicts, trade log  |
+| Vector Store      | Qdrant (primary) + LanceDB (hot standby) | Semantic retrieval, RAG memory |
+| Embeddings        | MistralEmbeddingClient     | Interim — local Qwen planned               |
+| Data Processing   | Polars                     | Time-series OHLCV — never Pandas           |
+| Data Models       | Pydantic v2 (frozen)       | All schemas, validation                    |
+| Config            | pydantic-settings (`PolarisSettings`) | Typed env var management — only source of config |
+| Logging           | Loguru                     | Structured logs (positional syntax only)   |
+| LLM Observability | Langfuse (self-hosted)     | LLM tracing, SDK ≥3.0                      |
+| Infra Metrics     | prometheus_client          | Redis/PostgreSQL/HTTP metrics — NOT for LLM tracing |
+| Type Checker      | pyright                    | `mypy` is banned                           |
+| Testing           | pytest + pytest-asyncio    | Unit + smoke tests, async-native           |
+
+## Phase 2+ Additions (approved for roadmap sessions)
+
+| Library              | Purpose                              | Added In       |
+|---------------------|--------------------------------------|----------------|
+| pybreaker           | Circuit breaker pattern              | Session 02     |
+| tenacity            | Explicit retry with backoff (only where documented) | Session 02 |
+| scikit-learn        | Stacking meta-learner, isotonic cal  | Session 08     |
+| hmmlearn            | HMM regime detection                 | Session 09     |
+| PyWavelets          | Wavelet features for GNN             | Phase H1       |
+| torch (CPU-only)    | GraphSAGE GNN agent (shadow mode)    | Session 16 / Phase H |
+| torch_geometric     | GNN layers                           | Session 16 / Phase H |
+| aiofiles            | Async filesystem I/O (kill switch state file) | Session 22 |
+
+## Vector Stack Invariants
+
+- **Qdrant** is primary. Use `qdrant-client` async methods.
+- **LanceDB** is hot standby. All calls wrapped in `asyncio.to_thread()`.
+- **Redis** provides 24h hot cache on top of both.
+- **asyncpg / PostgreSQL** stores historical signal records and the
+  long-term audit trail — NOT vector embeddings.
+
+## Data Provider Stack
+
+- **Hydra** (custom WebSocket ingestor) — liquidation cascade detection
+  across Binance, Bybit, OKX, Bitget, Hyperliquid. Replaces CoinGlass.
+- **Coinalyze** — funding rates + OI (multi-key round-robin).
+- **HyperTracker** — Hyperliquid on-chain (~5% weight, supplementary).
+- **Pyth Hermes** — price feed.
+- **FRED** — macro indicators.
+- **Nansen** — on-chain (MCP server only).
+- **Dune Analytics** — token metrics (MCP server only).
+- **Messari** — authoritative token unlock source; overrides Dune unlocks.
+- **OKX** — via MCP server.
+- **LLM cloud reasoning** — DeepSeek only. Grok fully removed.
+
+## Banned Libraries
+
+<ABSOLUTE_BAN>
+The following are banned. If Antigravity proposes any of these, reject
+the plan and require rewriting with the approved equivalent.
+
+- `requests` — use httpx.AsyncClient
+- `urllib` — use httpx.AsyncClient
+- `pandas` — use Polars
+- `psycopg2` — use asyncpg
+- `SQLAlchemy` — use asyncpg with raw SQL and typed Pydantic return models
+- `pgvector` — use Qdrant (primary) + LanceDB (hot standby)
+- `FAISS` — use Qdrant
+- `BM25` — use Qdrant with appropriate index config
+- `RRF` (Reciprocal Rank Fusion) — not used; single-stage Qdrant retrieval
+- `LlamaIndex` — custom RAG pipeline on Qdrant + LanceDB
+- `sentence-transformers` — use MistralEmbeddingClient (interim)
+- `json` (stdlib) — use msgspec unconditionally
+- `orjson` — use msgspec
+- `pickle` — use msgspec.json over model weight arrays
+- `joblib` — use msgspec.json (same as pickle rationale)
+- `aioredis` — use redis.asyncio (aioredis is abandoned upstream)
+- `mypy` — use pyright
+- `ccxt` or any exchange SDK in ATLAS — belongs in PROMETHEUS
+- stdlib `logging` — use Loguru
+- `os.getenv()` / `os.environ[...]` — use `PolarisSettings`
+- `BaseProvider` inheritance — this class does not exist in the codebase;
+  providers are duck-typed against the registry contract
+- New npm dependencies for TradingView — use existing widget integration
+- Next.js (`NEXT_PUBLIC_*` env vars) — frontend is Vite; use `VITE_` prefix
+
+Exceptions may exist in narrowly-scoped isolation layers (e.g. the
+kill switch's minimal config loader may use os.environ directly because
+PolarisSettings is the thing it needs to survive without) — but these
+exceptions must be explicit and documented.
+</ABSOLUTE_BAN>
+
+## Frontend Stack Invariants
+
+- Vite + React 18 + TypeScript + Tailwind v4
+- TanStack Router, TanStack Query
+- Zustand for state
+- Plotly for charts
+- `VITE_` prefix for all env vars exposed to the client bundle

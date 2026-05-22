@@ -1,0 +1,22 @@
+[project]
+name = "token-unlocks-mcp"
+version = "1.0.0"
+description = "Token Unlocks MCP — DefiLlama + Dune dual-fetcher for ATLAS NewsMacroAgent exit liquidity guardrail"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.0",
+    "httpx[http2]",
+    "msgspec",
+    "python-dotenv",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "pyright",
+]
+
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
